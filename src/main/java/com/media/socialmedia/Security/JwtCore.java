@@ -26,9 +26,9 @@ public class JwtCore {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
                 .subject(userDetails.getUsername())
-                .claim("userId", userDetails.getId())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + lifetime))
+                .claim("userId", userDetails.getUserId())
                 .signWith(key)
                 .compact();
     }

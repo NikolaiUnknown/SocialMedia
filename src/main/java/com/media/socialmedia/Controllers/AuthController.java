@@ -5,7 +5,6 @@ import com.media.socialmedia.DTO.RegisterRequest;
 import com.media.socialmedia.Services.RegService;
 import com.media.socialmedia.util.UserErrorResponse;
 import com.media.socialmedia.Security.JwtCore;
-import com.media.socialmedia.Security.UserDetailsImpl;
 import com.media.socialmedia.util.UserNotCreatedException;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import jakarta.validation.Valid;
@@ -50,7 +49,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email or password is Incorrect!");
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtCore.generateToken(authentication);
         return ResponseEntity.ok(jwt);
     }

@@ -3,11 +3,10 @@ package com.media.socialmedia.Controllers;
 import com.media.socialmedia.DTO.SettingRequest;
 import com.media.socialmedia.DTO.UserDataResponse;
 import com.media.socialmedia.Security.JwtUserDetails;
-import com.media.socialmedia.Security.UserDetailsImpl;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Services.ProfileService;
 import com.media.socialmedia.Services.SettingService;
-import com.media.socialmedia.Services.UserServiceImpl;
+import com.media.socialmedia.Services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,10 +25,10 @@ import java.util.UUID;
 public class ProfileController {
 
     private final SettingService settingService;
-    private final UserServiceImpl userService;
     private final ProfileService profileService;
+    private final UserService userService;
     @Autowired
-    public ProfileController(SettingService settingService, UserServiceImpl userService, ProfileService profileService)
+    public ProfileController(SettingService settingService, ProfileService profileService, UserService userService)
     {   this.profileService = profileService;
         this.settingService = settingService;
         this.userService = userService;
@@ -38,13 +37,13 @@ public class ProfileController {
     private  String pictureDirectory;
     @GetMapping("/user/{id}")
     public UserDataResponse getUser(@PathVariable("id") Long id,
-                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                    @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(id);
-        if (userDetails != null && userDetails.getUser().getId().equals(id)){
+        if (userDetails != null && userDetails.getUserId().equals(id)){
             return new UserDataResponse(user);
         }
         if (user.isPrivate()){
-            if (userDetails != null && profileService.getStatus(userDetails.getUser().getId(), user.getId()).equals("friends")){
+            if (userDetails != null && profileService.getStatus(userDetails.getUserId(), user.getId()).equals("friends")){
                 return new UserDataResponse(user);
             }
             return profileService.changeCredentials(new UserDataResponse(user));
@@ -52,10 +51,9 @@ public class ProfileController {
         else return new UserDataResponse(user);
     }
     @GetMapping("/status")
-    public String getStatus(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public String getStatus(@AuthenticationPrincipal JwtUserDetails userDetails,
                             @RequestParam long friendId){
-        User user = userDetails.getUser();
-        return profileService.getStatus(user.getId(),friendId);
+        return profileService.getStatus(userDetails.getUserId(),friendId);
     }
     @GetMapping("/m")
     public long m(@AuthenticationPrincipal JwtUserDetails userDetails){
@@ -65,9 +63,9 @@ public class ProfileController {
     public ResponseEntity<?> setting(
             @RequestPart("settings") @Valid SettingRequest settingRequest,
             @RequestPart("profilePicture") MultipartFile profilePicture,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
-        User user = userDetails.getUser();
+        User user = userService.loadUserById(userDetails.getUserId());
         if (!profilePicture.isEmpty()) {
             String extension = profilePicture.getOriginalFilename().substring(profilePicture.getOriginalFilename()
                                                                    .lastIndexOf('.'));

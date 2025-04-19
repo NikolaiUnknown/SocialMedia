@@ -23,7 +23,7 @@ public class JwtCore {
         key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
     public String generateToken(Authentication authentication){
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        AuthDetailsImpl userDetails = (AuthDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())

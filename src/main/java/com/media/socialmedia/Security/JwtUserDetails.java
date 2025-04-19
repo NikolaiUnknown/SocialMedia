@@ -1,5 +1,6 @@
 package com.media.socialmedia.Security;
 
+import com.media.socialmedia.Entity.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,6 @@ public class JwtUserDetails implements UserDetails {
         this.userId = userId;
         this.email = email;
     }
-//... Остальные методы
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

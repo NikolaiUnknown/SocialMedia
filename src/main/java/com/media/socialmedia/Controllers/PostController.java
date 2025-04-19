@@ -3,9 +3,10 @@ package com.media.socialmedia.Controllers;
 import com.media.socialmedia.DTO.PostCreateRequest;
 import com.media.socialmedia.DTO.PostResponse;
 import com.media.socialmedia.Entity.User;
-import com.media.socialmedia.Security.UserDetailsImpl;
+import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.LikeService;
 import com.media.socialmedia.Services.PostService;
+import com.media.socialmedia.Services.UserService;
 import com.media.socialmedia.util.PostNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ public class PostController {
 
     private final PostService postService;
     private final LikeService likeService;
+    private final UserService userService;
     @Autowired
-    public PostController(PostService postService, LikeService likeService) {
+    public PostController(PostService postService, LikeService likeService, UserService userService) {
         this.postService = postService;
         this.likeService = likeService;
+        this.userService = userService;
     }
 
     @GetMapping("/{id}")
@@ -34,26 +37,24 @@ public class PostController {
     }
     @GetMapping("/all/{id}")
     public PostResponse[] getAllPostsByUser(@PathVariable("id") long userId){
-
         return postService.loadPostsByUserId(userId);
     }
     @PostMapping("/like/{id}")
     public ResponseEntity<?> like(@PathVariable("id") Long id,
-                                  @AuthenticationPrincipal UserDetailsImpl userDetails){
-        User user = userDetails.getUser();
+                                  @AuthenticationPrincipal JwtUserDetails userDetails){
         try {
             postService.loadPostById(id);
         } catch (PostNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
 
-        return ResponseEntity.ok(likeService.like(user.getId(), id));
+        return ResponseEntity.ok(likeService.like(userDetails.getUserId(), id));
     }
     @PostMapping(value="/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequest request,
                                    @RequestPart("image")MultipartFile file,
-                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
-        User user = userDetails.getUser();
+                                    @AuthenticationPrincipal JwtUserDetails userDetails){
+        User user = userService.loadUserById(userDetails.getUserId());
         if (file.isEmpty()) {
             postService.create(user,request);
         }

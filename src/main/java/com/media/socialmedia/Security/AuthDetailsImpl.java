@@ -10,14 +10,12 @@ import java.util.Collection;
 
 @Getter
 @Component
-public class UserDetailsImpl implements UserDetails {
-    //TODO
+public class AuthDetailsImpl implements UserDetails {
     private final User user;
     @Autowired
-    public UserDetailsImpl(User user) {
+    public AuthDetailsImpl(User user) {
         this.user = user;
     }
-    //TODO
 
     public Long getUserId(){
         return user.getId();

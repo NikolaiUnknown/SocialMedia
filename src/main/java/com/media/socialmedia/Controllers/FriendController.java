@@ -2,14 +2,13 @@ package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.UserDataResponse;
 import com.media.socialmedia.Entity.User;
-import com.media.socialmedia.Security.UserDetailsImpl;
+import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.FriendService;
 import com.media.socialmedia.util.InviteNotFoundException;
 import com.media.socialmedia.util.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.Set;
@@ -24,27 +23,23 @@ public class FriendController {
     }
 
     @GetMapping("/all")
-    public Set<UserDataResponse> getAll(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        User user = userDetails.getUser();
-        return friendService.getAllFriends(user.getId());
+    public Set<UserDataResponse> getAll(@AuthenticationPrincipal JwtUserDetails userDetails){
+        return friendService.getAllFriends(userDetails.getUserId());
     }
     @GetMapping("/invites")
-    public Set<UserDataResponse> getInvites(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        User user = userDetails.getUser();
-        return friendService.getInvites(user.getId());
+    public Set<UserDataResponse> getInvites(@AuthenticationPrincipal JwtUserDetails userDetails){
+        return friendService.getInvites(userDetails.getUserId());
     }
     @GetMapping("/invited")
-    public Set<UserDataResponse> getInvited(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        User user = userDetails.getUser();
-        return friendService.getInvited(user.getId());
+    public Set<UserDataResponse> getInvited(@AuthenticationPrincipal JwtUserDetails userDetails){
+        return friendService.getInvited(userDetails.getUserId());
     }
 
     @PostMapping("/invite")
-    public ResponseEntity<?> invite(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<?> invite(@AuthenticationPrincipal JwtUserDetails userDetails,
                                     @RequestParam long friendId){
-        User user = userDetails.getUser();
         try {
-            friendService.inviteToFriend(user.getId(),friendId);
+            friendService.inviteToFriend(userDetails.getUserId(),friendId);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -52,32 +47,29 @@ public class FriendController {
     }
 
     @PostMapping("/accept")
-    public ResponseEntity<?> accept(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<?> accept(@AuthenticationPrincipal JwtUserDetails userDetails,
                                     @RequestParam long friendId){
-        User user = userDetails.getUser();
         try {
-            friendService.acceptToFriend(user.getId(),friendId);
+            friendService.acceptToFriend(userDetails.getUserId(),friendId);
         }catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("accepted!");
     }
     @PostMapping("/deny")
-    public ResponseEntity<?> deny(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<?> deny(@AuthenticationPrincipal JwtUserDetails userDetails,
                                   @RequestParam long friendId){
-        User user = userDetails.getUser();
         try {
-            friendService.deny(user.getId(),friendId);
+            friendService.deny(userDetails.getUserId(),friendId);
         }catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("deny!");
     }
     @PostMapping("/remove")
-    public ResponseEntity<?> remove(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam long friendId){
-        User user = userDetails.getUser();
+    public ResponseEntity<?> remove(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestParam long friendId){
         try {
-            friendService.remove(user.getId(),friendId);
+            friendService.remove(userDetails.getUserId(),friendId);
         }catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }

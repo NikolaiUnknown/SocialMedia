@@ -21,11 +21,9 @@ import java.util.Collections;
 @Component
 public class TokenFilter extends OncePerRequestFilter {
     private final JwtCore jwtCore;
-    private final UserDetailsService userDetailsService;
     @Autowired
-    public TokenFilter(JwtCore jwtCore, UserDetailsService userDetailsService) {
+    public TokenFilter(JwtCore jwtCore) {
         this.jwtCore = jwtCore;
-        this.userDetailsService = userDetailsService;
     }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

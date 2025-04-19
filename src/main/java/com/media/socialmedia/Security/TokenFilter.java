@@ -28,6 +28,7 @@ public class TokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = null;
         Long userId = null;
+        boolean isAdmin = false;
         Claims claims;
         UserDetails userDetails;
         UsernamePasswordAuthenticationToken auth;
@@ -41,11 +42,13 @@ public class TokenFilter extends OncePerRequestFilter {
                 try {
                     claims = jwtCore.claims(jwt);
                     userId = Long.valueOf(claims.getSubject());
+                    isAdmin = claims.get("admin", Boolean.class);
+
                 } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
 
                 }
                 if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    userDetails = new JwtUserDetails(userId);
+                    userDetails = new JwtUserDetails(userId,isAdmin);
                     auth = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

@@ -7,14 +7,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.util.Collection;
-
+import java.util.List;
 @Getter
 @Component
 public class AuthDetailsImpl implements UserDetails {
     private final User user;
+    private final boolean isAdmin;
     @Autowired
     public AuthDetailsImpl(User user) {
         this.user = user;
+        this.isAdmin = user.isAdmin();
     }
 
     public Long getUserId(){
@@ -24,7 +26,7 @@ public class AuthDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(() -> isAdmin ? "ROLE_ADMIN" : "ROLE_USER");
     }
 
     @Override

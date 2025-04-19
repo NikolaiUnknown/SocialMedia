@@ -29,12 +29,11 @@ public class JwtCore {
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + lifetime))
                 .signWith(key)
+                .claim("admin", userDetails.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))
                 .compact();
     }
     Claims claims(String jwt){
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload();
-    }
-    Long getUserId(String jwt){
-        return Long.valueOf(Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload().getSubject());
     }
 }

@@ -6,17 +6,20 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 public class JwtUserDetails implements UserDetails {
     private final Long userId;
-    public JwtUserDetails(Long userId) {
+    private final boolean isAdmin;
+    public JwtUserDetails(Long userId, boolean isAdmin) {
         this.userId = userId;
+        this.isAdmin = isAdmin;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(() -> isAdmin ? "ROLE_ADMIN" : "ROLE_USER");
     }
 
     @Override

@@ -49,6 +49,8 @@ public class User {
 
     private boolean isPrivate;
 
+    private boolean isAdmin;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "likes",

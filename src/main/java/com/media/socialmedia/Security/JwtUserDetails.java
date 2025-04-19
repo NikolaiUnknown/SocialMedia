@@ -7,13 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Getter
 public class JwtUserDetails implements UserDetails {
-    @Getter
     private final Long userId;
-    private final String email;
-    public JwtUserDetails(Long userId, String email) {
+    public JwtUserDetails(Long userId) {
         this.userId = userId;
-        this.email = email;
     }
 
     @Override
@@ -27,9 +25,7 @@ public class JwtUserDetails implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return email;
-    }
+    public String getUsername() {return null;}
 
     @Override
     public boolean isAccountNonExpired() {

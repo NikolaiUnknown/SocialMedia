@@ -25,14 +25,16 @@ public class JwtCore {
     public String generateToken(Authentication authentication){
         AuthDetailsImpl userDetails = (AuthDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .subject(String.valueOf(userDetails.getUserId()))
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + lifetime))
-                .claim("userId", userDetails.getUserId())
                 .signWith(key)
                 .compact();
     }
     Claims claims(String jwt){
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload();
+    }
+    Long getUserId(String jwt){
+        return Long.valueOf(Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload().getSubject());
     }
 }

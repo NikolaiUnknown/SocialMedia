@@ -39,11 +39,15 @@ public class ProfileController {
     public UserDataResponse getUser(@PathVariable("id") Long id,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(id);
-        if (userDetails != null && userDetails.getUserId().equals(id)){
+        if (userDetails == null){
+            return new UserDataResponse(user);
+        }
+        Long authId = userDetails.getUserId();
+        if (authId.equals(id)){
             return new UserDataResponse(user);
         }
         if (user.isPrivate()){
-            if (userDetails != null && profileService.getStatus(userDetails.getUserId(), user.getId()).equals("friends")){
+            if (profileService.getStatus(authId, user.getId()).equals("friends")){
                 return new UserDataResponse(user);
             }
             return profileService.changeCredentials(new UserDataResponse(user));

@@ -1,5 +1,6 @@
 package com.media.socialmedia.Security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -30,6 +31,8 @@ public class TokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = null;
         String username = null;
+        Long userId = null;
+        Claims claims = null;
         UserDetails userDetails = null;
         UsernamePasswordAuthenticationToken auth = null;
 
@@ -40,12 +43,14 @@ public class TokenFilter extends OncePerRequestFilter {
             }
             if (jwt != null && !jwt.isEmpty()) {
                 try {
-                    username = jwtCore.getNameFromJwt(jwt);
+                    claims = jwtCore.claims(jwt);
+                    username = claims.getSubject();
+                    userId = claims.get("userId", Long.class);
                 } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
 
                 }
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    userDetails = userDetailsService.loadUserByUsername(username);
+                    userDetails = new JwtUserDetails(userId,username);
                     auth = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

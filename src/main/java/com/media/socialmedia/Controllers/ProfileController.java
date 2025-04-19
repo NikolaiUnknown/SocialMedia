@@ -2,6 +2,7 @@ package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.SettingRequest;
 import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Security.UserDetailsImpl;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Services.ProfileService;
@@ -57,9 +58,8 @@ public class ProfileController {
         return profileService.getStatus(user.getId(),friendId);
     }
     @GetMapping("/m")
-    public long m(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        User user = userDetails.getUser();
-        return user.getId();
+    public long m(@AuthenticationPrincipal JwtUserDetails userDetails){
+        return userDetails.getUserId();
     }
     @PostMapping(value = "/setting", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> setting(

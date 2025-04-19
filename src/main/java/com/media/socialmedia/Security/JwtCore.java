@@ -32,8 +32,7 @@ public class JwtCore {
                 .signWith(key)
                 .compact();
     }
-
-    public String getNameFromJwt(String jwt){
-        return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload().getSubject();
+    Claims claims(String jwt){
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload();
     }
 }

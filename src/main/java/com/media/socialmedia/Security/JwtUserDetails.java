@@ -9,11 +9,12 @@ import java.util.Collection;
 public class JwtUserDetails implements UserDetails {
     @Getter
     private final Long userId;
-
-    public JwtUserDetails(Long userId) {
+    private final String email;
+    public JwtUserDetails(Long userId, String email) {
         this.userId = userId;
+        this.email = email;
     }
-
+//... Остальные методы
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -27,7 +28,7 @@ public class JwtUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+        return email;
     }
 
     @Override

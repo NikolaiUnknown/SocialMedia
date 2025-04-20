@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,20 +39,25 @@ public class ProfileController {
     public UserDataResponse getUser(@PathVariable("id") Long id,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(id);
-        if (userDetails == null){
-            return new UserDataResponse(user);
-        }
-        Long authId = userDetails.getUserId();
-        if (authId.equals(id)){
-            return new UserDataResponse(user);
-        }
         if (user.isPrivate()){
+            if (userDetails == null){
+                return profileService.changeCredentials(new UserDataResponse(user));
+            }
+            if (userDetails.getAuthorities().stream().
+                    anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                return new UserDataResponse(user);
+            }
+            Long authId = userDetails.getUserId();
+            if (authId.equals(id)){
+                return new UserDataResponse(user);
+            }
             if (profileService.getStatus(authId, user.getId()).equals("friends")){
                 return new UserDataResponse(user);
             }
             return profileService.changeCredentials(new UserDataResponse(user));
         }
         else return new UserDataResponse(user);
+
     }
     @GetMapping("/status")
     public String getStatus(@AuthenticationPrincipal JwtUserDetails userDetails,
@@ -86,5 +90,4 @@ public class ProfileController {
         settingService.setting(user, settingRequest);
         return ResponseEntity.ok("success");
     }
-
 }

@@ -12,21 +12,21 @@ import java.util.List;
 @Component
 public class AuthDetailsImpl implements UserDetails {
     private final User user;
-    private final boolean isAdmin;
+    private final boolean blocked;
     @Autowired
     public AuthDetailsImpl(User user) {
         this.user = user;
-        this.isAdmin = user.isAdmin();
+        this.blocked = user.isBlocked();
     }
 
     public Long getUserId(){
         return user.getId();
     }
-
+    public Boolean isBlocked(){return blocked;}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> isAdmin ? "ROLE_ADMIN" : "ROLE_USER");
+        return List.of(() -> user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER");
     }
 
     @Override

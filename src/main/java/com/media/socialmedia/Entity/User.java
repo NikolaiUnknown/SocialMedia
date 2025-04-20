@@ -51,6 +51,8 @@ public class User {
 
     private boolean isAdmin;
 
+    private boolean isBlocked;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "likes",

@@ -10,16 +10,15 @@ import java.util.List;
 @Getter
 public class JwtUserDetails implements UserDetails {
     private final Long userId;
-    private final boolean isAdmin;
-    public JwtUserDetails(Long userId, boolean isAdmin) {
+    private final boolean admin;
+    public JwtUserDetails(Long userId, boolean admin) {
         this.userId = userId;
-        System.out.println(isAdmin);
-        this.isAdmin = isAdmin;
+        this.admin = admin;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> isAdmin ? "ROLE_ADMIN" : "ROLE_USER");
+        return List.of(() -> admin ? "ROLE_ADMIN" : "ROLE_USER");
     }
 
     @Override

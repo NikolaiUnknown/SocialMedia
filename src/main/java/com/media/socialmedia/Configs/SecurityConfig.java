@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/a/**").permitAll()
                         .requestMatchers("/post/like/**").fullyAuthenticated()
                         .requestMatchers("/post/new").fullyAuthenticated()
+                        .requestMatchers("/post/whoLiked/**").fullyAuthenticated()
                         .requestMatchers("/p/user/**").permitAll()
                         .requestMatchers("/image/**").permitAll()
                         .requestMatchers("/post/**").permitAll()

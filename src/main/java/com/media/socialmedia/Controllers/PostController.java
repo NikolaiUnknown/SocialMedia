@@ -2,6 +2,7 @@ package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.PostCreateRequest;
 import com.media.socialmedia.DTO.PostResponse;
+import com.media.socialmedia.DTO.UserDataResponse;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.LikeService;
@@ -13,9 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/post")

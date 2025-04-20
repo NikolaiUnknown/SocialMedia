@@ -52,7 +52,7 @@ public class TokenFilter extends OncePerRequestFilter {
                     auth = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            Collections.emptyList()
+                            userDetails.getAuthorities()
                     );
 
                     SecurityContextHolder.getContext().setAuthentication(auth);

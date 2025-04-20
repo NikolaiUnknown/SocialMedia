@@ -86,4 +86,5 @@ public class ProfileController {
         settingService.setting(user, settingRequest);
         return ResponseEntity.ok("success");
     }
+
 }

@@ -1,6 +1,5 @@
 package com.media.socialmedia.Security;
 
-import com.media.socialmedia.Entity.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +13,7 @@ public class JwtUserDetails implements UserDetails {
     private final boolean isAdmin;
     public JwtUserDetails(Long userId, boolean isAdmin) {
         this.userId = userId;
+        System.out.println(isAdmin);
         this.isAdmin = isAdmin;
     }
 

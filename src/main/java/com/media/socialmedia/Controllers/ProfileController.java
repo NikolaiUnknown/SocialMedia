@@ -7,6 +7,7 @@ import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Services.ProfileService;
 import com.media.socialmedia.Services.SettingService;
 import com.media.socialmedia.Services.UserService;
+import com.media.socialmedia.util.ProfileStatus;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,7 @@ public class ProfileController {
             if (authId.equals(id)){
                 return new UserDataResponse(user);
             }
-            if (profileService.getStatus(authId, user.getId()).equals("friends")){
+            if (profileService.getStatus(authId, user.getId()).equals(ProfileStatus.FRIENDS)){
                 return new UserDataResponse(user);
             }
             return profileService.changeCredentials(new UserDataResponse(user));
@@ -62,7 +63,7 @@ public class ProfileController {
     @GetMapping("/status")
     public String getStatus(@AuthenticationPrincipal JwtUserDetails userDetails,
                             @RequestParam long friendId){
-        return profileService.getStatus(userDetails.getUserId(),friendId);
+        return profileService.getStatus(userDetails.getUserId(),friendId).name();
     }
     @GetMapping("/m")
     public long m(@AuthenticationPrincipal JwtUserDetails userDetails){

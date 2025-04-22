@@ -1,6 +1,6 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.InviteNotFoundException;
@@ -22,7 +22,7 @@ public class FriendService {
         this.profileService = profileService;
     }
 
-    public Set<UserDataResponse> getAllFriends(long userId){
+    public Set<UserDataResponseDTO> getAllFriends(long userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotCreatedException("User not found!"));
         Set<User> friends = new HashSet<>();
         friends.addAll(user.getFriends());
@@ -32,7 +32,7 @@ public class FriendService {
                 .collect(Collectors.toSet());
     }
 
-    public Set<UserDataResponse> getInvites(long id) {
+    public Set<UserDataResponseDTO> getInvites(long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotCreatedException("User not found!"));
         Set<User> invites = user.getInvites();
         return invites.stream()
@@ -45,7 +45,7 @@ public class FriendService {
                         }).collect(Collectors.toSet());
 
     }
-    public Set<UserDataResponse> getInvited(long id) {
+    public Set<UserDataResponseDTO> getInvited(long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotCreatedException("User not found!"));
         Set<User> invited = user.getInvited();
         return invited.stream()
@@ -113,8 +113,8 @@ public class FriendService {
             userRepository.save(friend);
         } else throw new InviteNotFoundException(friend.getFirstname()+ " is not your friend!");
     }
-    private UserDataResponse userToUserDataResponse(User user){
-        return new UserDataResponse(user);
+    private UserDataResponseDTO userToUserDataResponse(User user){
+        return new UserDataResponseDTO(user);
     }
 
 

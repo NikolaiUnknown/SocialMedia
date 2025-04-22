@@ -1,6 +1,6 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.AdminService;
 import com.media.socialmedia.util.PostNotFoundException;
@@ -80,7 +80,7 @@ public class AdminController {
     }
 
     @GetMapping("/posts/whoLiked/{id}")
-    public Set<UserDataResponse> whoLiked(@PathVariable Long id){
+    public Set<UserDataResponseDTO> whoLiked(@PathVariable Long id){
         return adminService.getUsersWhoLike(id);
     }
 }

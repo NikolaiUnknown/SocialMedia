@@ -13,7 +13,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SettingRequest {
+public class SettingRequestDTO {
     @NotNull
     private String firstname;
     @NotNull

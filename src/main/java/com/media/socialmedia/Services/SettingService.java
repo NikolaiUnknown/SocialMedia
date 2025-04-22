@@ -1,6 +1,6 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.SettingRequest;
+import com.media.socialmedia.DTO.SettingRequestDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class SettingService {
     }
 
 
-    public void setting(User user, SettingRequest request){
+    public void setting(User user, SettingRequestDTO request){
         userRepository.setUserInfoById(request.getFirstname(),request.getLastname(),request.getDateOfBirthday(),request.getCountry(),request.getProfilePicture(),user.getId());
     }
 

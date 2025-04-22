@@ -1,6 +1,6 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.RegisterRequest;
+import com.media.socialmedia.DTO.RegisterRequestDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.UsernameIsUsedException;
@@ -23,7 +23,7 @@ public class RegService {
     }
 
 
-    public void register(RegisterRequest registerRequest){
+    public void register(RegisterRequestDTO registerRequest){
         User user = convertToUser(registerRequest);
         if (userRepository.findUserByEmail(registerRequest.getEmail()) != null){
             throw new UsernameIsUsedException("This email address: " + registerRequest.getEmail() + " is already in use!");
@@ -36,7 +36,7 @@ public class RegService {
         userRepository.save(user);
     }
 
-    private User convertToUser(RegisterRequest user) {
+    private User convertToUser(RegisterRequestDTO user) {
         return mapper.map(user,User.class);
     }
 

@@ -1,7 +1,6 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.UserDataResponse;
-import com.media.socialmedia.Entity.User;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.FriendService;
 import com.media.socialmedia.util.InviteNotFoundException;
@@ -23,15 +22,15 @@ public class FriendController {
     }
 
     @GetMapping("/all")
-    public Set<UserDataResponse> getAll(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDataResponseDTO> getAll(@AuthenticationPrincipal JwtUserDetails userDetails){
         return friendService.getAllFriends(userDetails.getUserId());
     }
     @GetMapping("/invites")
-    public Set<UserDataResponse> getInvites(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDataResponseDTO> getInvites(@AuthenticationPrincipal JwtUserDetails userDetails){
         return friendService.getInvites(userDetails.getUserId());
     }
     @GetMapping("/invited")
-    public Set<UserDataResponse> getInvited(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDataResponseDTO> getInvited(@AuthenticationPrincipal JwtUserDetails userDetails){
         return friendService.getInvited(userDetails.getUserId());
     }
 

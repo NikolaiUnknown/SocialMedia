@@ -1,18 +1,16 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Entity.Post;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.PostNotFoundException;
-import com.media.socialmedia.util.UserNotCreatedException;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,11 +63,11 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    public Set<UserDataResponse> getUsersWhoLike(Long id) {
+    public Set<UserDataResponseDTO> getUsersWhoLike(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException("Post not found!"));
         return post.getLikes().stream().map(this::userToUserDataResponse).collect(Collectors.toSet());
     }
-    private UserDataResponse userToUserDataResponse(User user){
-        return new UserDataResponse(user);
+    private UserDataResponseDTO userToUserDataResponse(User user){
+        return new UserDataResponseDTO(user);
     }
 }

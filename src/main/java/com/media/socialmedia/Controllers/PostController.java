@@ -1,8 +1,7 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.PostCreateRequest;
-import com.media.socialmedia.DTO.PostResponse;
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.PostCreateRequestDTO;
+import com.media.socialmedia.DTO.PostResponseDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.LikeService;
@@ -14,12 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Set;
 
 @RestController
 @RequestMapping("/post")
@@ -36,11 +32,11 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public PostResponse post(@PathVariable("id") Long id){
+    public PostResponseDTO post(@PathVariable("id") Long id){
         return postService.getPost(id);
     }
     @GetMapping("/all/{id}")
-    public PostResponse[] getAllPostsByUser(@PathVariable("id") long userId){
+    public PostResponseDTO[] getAllPostsByUser(@PathVariable("id") long userId){
         return postService.loadPostsByUserId(userId);
     }
     @PostMapping("/like/{id}")
@@ -55,7 +51,7 @@ public class PostController {
         return ResponseEntity.ok(likeService.like(userDetails.getUserId(), id));
     }
     @PostMapping(value="/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequest request,
+    public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequestDTO request,
                                    @RequestPart("image")MultipartFile file,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(userDetails.getUserId());

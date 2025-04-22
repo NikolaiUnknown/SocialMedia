@@ -1,7 +1,7 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.PostCreateRequest;
-import com.media.socialmedia.DTO.PostResponse;
+import com.media.socialmedia.DTO.PostCreateRequestDTO;
+import com.media.socialmedia.DTO.PostResponseDTO;
 import com.media.socialmedia.Entity.Post;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
@@ -31,17 +31,17 @@ public class PostService {
         this.mapper = mapper;
         this.likeService = likeService;
     }
-    public PostResponse[] loadPostsByUserId(long userId){
+    public PostResponseDTO[] loadPostsByUserId(long userId){
         Post[] posts = repository.getPostsByUserId(userId);
-        PostResponse[] response = new PostResponse[posts.length];
+        PostResponseDTO[] response = new PostResponseDTO[posts.length];
         for (int i = 0;i<posts.length;i++){
-            PostResponse ans = converToPostResponse(posts[i]);
+            PostResponseDTO ans = converToPostResponse(posts[i]);
             ans.setCountOfLike(likeService.getCountOfLike(posts[i].getId()));
             response[i] = ans;
         }
         return response;
     }
-    public void create(User user, PostCreateRequest request){
+    public void create(User user, PostCreateRequestDTO request){
         Post post = new Post();
         post.setText(request.getText());
         post.setPhotoUrl(null);
@@ -49,7 +49,7 @@ public class PostService {
         repository.save(post);
 
     }
-    public void create(User user, PostCreateRequest request, MultipartFile file){
+    public void create(User user, PostCreateRequestDTO request, MultipartFile file){
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
         String filename = UUID.randomUUID() + extension;
         try {
@@ -71,11 +71,11 @@ public class PostService {
         }
         return post.get();
     }
-    public PostResponse getPost(Long id){
-        PostResponse post = converToPostResponse(loadPostById(id));
+    public PostResponseDTO getPost(Long id){
+        PostResponseDTO post = converToPostResponse(loadPostById(id));
         post.setCountOfLike(likeService.getCountOfLike(id));
         return post;
     }
-    private PostResponse converToPostResponse(Post post){return mapper.map(post,PostResponse.class);}
+    private PostResponseDTO converToPostResponse(Post post){return mapper.map(post, PostResponseDTO.class);}
 
 }

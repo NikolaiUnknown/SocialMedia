@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
+public class RegisterRequestDTO {
     @Email(message = "is no email!")
     private String email;
     @Min(value = 6,message = "password must be greater than 6!")

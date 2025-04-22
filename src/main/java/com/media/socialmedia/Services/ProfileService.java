@@ -1,6 +1,6 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.ProfileStatus;
@@ -35,7 +35,7 @@ public class ProfileService {
         return ProfileStatus.UNKNOWN;
     }
 
-    public UserDataResponse changeCredentials(UserDataResponse response){
+    public UserDataResponseDTO changeCredentials(UserDataResponseDTO response){
         response.setEmail(null);
         response.setCountry(null);
         response.setDateOfBirthday(null);

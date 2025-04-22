@@ -5,7 +5,7 @@ import lombok.Data;
 import java.text.SimpleDateFormat;
 
 @Data
-public class UserDataResponse {
+public class UserDataResponseDTO {
 
     private final Long id;
 
@@ -25,7 +25,7 @@ public class UserDataResponse {
 
     private final boolean isPrivate;
 
-    public UserDataResponse(User user) {
+    public UserDataResponseDTO(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.firstname = user.getFirstname();

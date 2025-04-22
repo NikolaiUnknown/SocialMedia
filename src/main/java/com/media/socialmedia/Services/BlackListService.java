@@ -1,6 +1,6 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.InviteNotFoundException;
@@ -58,12 +58,12 @@ public class BlackListService {
         repository.save(user1);
     }
 
-    public Set<UserDataResponse> getBlacklist(long userId) {
+    public Set<UserDataResponseDTO> getBlacklist(long userId) {
         User user = repository.findById(userId).orElseThrow(() -> new UserNotCreatedException("User not found!"));
         Set<User> blacklist = user.getBlacklist();
         return blacklist.stream().map(this::userToUserDataResponse).collect(Collectors.toSet());
     }
-    private UserDataResponse userToUserDataResponse(User user){
-        return new UserDataResponse(user);
+    private UserDataResponseDTO userToUserDataResponse(User user){
+        return new UserDataResponseDTO(user);
     }
 }

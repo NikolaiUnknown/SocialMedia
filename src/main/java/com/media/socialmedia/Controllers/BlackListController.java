@@ -1,6 +1,6 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.BlackListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class BlackListController {
     }
 
     @GetMapping("/get")
-    public Set<UserDataResponse> allBlacklistedUsers(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDataResponseDTO> allBlacklistedUsers(@AuthenticationPrincipal JwtUserDetails userDetails){
 
         return blackListService.getBlacklist(userDetails.getUserId());
     }

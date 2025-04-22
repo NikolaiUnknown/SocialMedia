@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostCreateRequest {
+public class PostCreateRequestDTO {
     @NotNull
     private String text;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

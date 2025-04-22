@@ -28,4 +28,5 @@ socialmedia:
     dir: C:/pictures/ #Directory of saved pictures
   security:
     secret: FA0YBcVmpr9CdM3SqfIdqftRjPeuLlL6W/7IcPMvVMc #256-bit secret
-    lifetime: 21600000 #Token lifetime
+    accessLifetime: 900000 #JWT lifetime
+    refreshLifetime: 604800000 #Refresh token lifetime

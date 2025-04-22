@@ -1,7 +1,7 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.SettingRequest;
-import com.media.socialmedia.DTO.UserDataResponse;
+import com.media.socialmedia.DTO.SettingRequestDTO;
+import com.media.socialmedia.DTO.UserDataResponseDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Services.ProfileService;
@@ -37,27 +37,27 @@ public class ProfileController {
     @Value("${socialmedia.pictures.dir}")
     private  String pictureDirectory;
     @GetMapping("/user/{id}")
-    public UserDataResponse getUser(@PathVariable("id") Long id,
-                                    @AuthenticationPrincipal JwtUserDetails userDetails){
+    public UserDataResponseDTO getUser(@PathVariable("id") Long id,
+                                       @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(id);
         if (user.isPrivate()){
             if (userDetails == null){
-                return profileService.changeCredentials(new UserDataResponse(user));
+                return profileService.changeCredentials(new UserDataResponseDTO(user));
             }
             if (userDetails.getAuthorities().stream().
                     anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                return new UserDataResponse(user);
+                return new UserDataResponseDTO(user);
             }
             Long authId = userDetails.getUserId();
             if (authId.equals(id)){
-                return new UserDataResponse(user);
+                return new UserDataResponseDTO(user);
             }
             if (profileService.getStatus(authId, user.getId()).equals(ProfileStatus.FRIENDS)){
-                return new UserDataResponse(user);
+                return new UserDataResponseDTO(user);
             }
-            return profileService.changeCredentials(new UserDataResponse(user));
+            return profileService.changeCredentials(new UserDataResponseDTO(user));
         }
-        else return new UserDataResponse(user);
+        else return new UserDataResponseDTO(user);
 
     }
     @GetMapping("/status")
@@ -71,7 +71,7 @@ public class ProfileController {
     }
     @PostMapping(value = "/setting", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> setting(
-            @RequestPart("settings") @Valid SettingRequest settingRequest,
+            @RequestPart("settings") @Valid SettingRequestDTO settingRequest,
             @RequestPart("profilePicture") MultipartFile profilePicture,
             @AuthenticationPrincipal JwtUserDetails userDetails
     ) {

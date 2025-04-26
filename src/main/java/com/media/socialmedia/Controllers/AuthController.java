@@ -1,13 +1,10 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.JwtResponseDTO;
 import com.media.socialmedia.DTO.LoginRequestDTO;
-import com.media.socialmedia.DTO.RefreshTokenRequestDTO;
 import com.media.socialmedia.DTO.RegisterRequestDTO;
 import com.media.socialmedia.Entity.RefreshToken;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Security.AuthDetailsImpl;
-import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.RefreshTokenService;
 import com.media.socialmedia.Services.RegService;
 import com.media.socialmedia.Services.UserService;
@@ -16,8 +13,9 @@ import com.media.socialmedia.util.UserErrorResponse;
 import com.media.socialmedia.Security.JwtCore;
 import com.media.socialmedia.util.UserNotCreatedException;
 import com.media.socialmedia.util.UsernameIsUsedException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +54,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public JwtResponseDTO login(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
         Authentication authentication = null;
         try {
             authentication = authenticationManager.authenticate(
@@ -68,14 +66,37 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         AuthDetailsImpl userDetails = (AuthDetailsImpl) authentication.getPrincipal();
         String jwt = jwtCore.generateToken(userDetails);
-
         String refreshToken = tokenService.createRefreshToken(userDetails.getUserId()).getToken();
-        return new JwtResponseDTO(jwt,refreshToken);
+        Cookie newRefreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        newRefreshTokenCookie.setHttpOnly(true);
+//        newRefreshTokenCookie.setSecure(true); // Only for HTTPS
+        newRefreshTokenCookie.setPath("/");
+        newRefreshTokenCookie.setMaxAge(Integer.MAX_VALUE);
+        response.addCookie(newRefreshTokenCookie);
+        return ResponseEntity.ok(jwt);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String token){
+        return tokenService.findByToken(token)
+                .map((refreshToken) -> {
+                    try {
+                        tokenService.verifyExpiration(refreshToken);
+                    }catch (RefreshTokenExpireException e){
+                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+                    }
+                    return refreshToken;
+                })
+                .map(RefreshToken::getUserId)
+                .map((userId) -> {
+                    User user = userService.loadUserById(userId);
+                    String accessToken = jwtCore.generateToken(userService.loadUserByUsername(user.getEmail()));
+                    return ResponseEntity.ok(accessToken);
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Request Token not found in db"));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO registerRequest, BindingResult bindingResult) {
-
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO registerRequest, BindingResult bindingResult, HttpServletResponse response) {
         if(bindingResult.hasErrors()){
             StringBuilder errorMsg = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -92,23 +113,12 @@ public class AuthController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
         LoginRequestDTO request = new LoginRequestDTO(registerRequest.getEmail(),registerRequest.getPassword());
-        return ResponseEntity.ok(login(request).getAccessToken());
-    }
-
-    @PostMapping("/refresh")
-    public JwtResponseDTO refreshToken(@RequestBody RefreshTokenRequestDTO request){
-        return tokenService.findByToken(request.getToken())
-                .map(tokenService::verifyExpiration)
-                .map(RefreshToken::getUserId)
-                .map((userId) -> {
-                    User user = userService.loadUserById(userId);
-                    String accessToken = jwtCore.generateToken(userService.loadUserByUsername(user.getEmail()));
-                    return new JwtResponseDTO(accessToken,request.getToken());
-                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Request Token not found in db"));
+        return ResponseEntity.ok(login(request,response).getBody());
     }
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleExeption(UserNotCreatedException e){
-        UserErrorResponse response = new UserErrorResponse(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    private ResponseEntity<UserErrorResponse> handleException(ResponseStatusException e){
+        UserErrorResponse response = new UserErrorResponse(e.getReason());
+        return new ResponseEntity<>(response,e.getStatusCode());
     }
+
 }

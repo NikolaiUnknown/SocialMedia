@@ -2,7 +2,6 @@ package com.media.socialmedia.Services;
 
 import com.media.socialmedia.Entity.RefreshToken;
 import com.media.socialmedia.Repository.RefreshTokenRepository;
-import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.RefreshTokenExpireException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,21 +26,20 @@ public class RefreshTokenService {
         RefreshToken refreshToken = RefreshToken.builder()
                 .userId(id)
                 .token(UUID.randomUUID().toString())
-                .expiryDate(new Date((new Date()).getTime() + 600000)) // set expiry of refresh token to 10 minutes - you can configure it application.properties file
+                .expiryDate(new Date((new Date()).getTime() + lifetime))
                 .build();
         return tokenRepository.save(refreshToken);
     }
 
-    public Optional<RefreshToken> findByToken(String jwt){
-        return tokenRepository.findByToken(jwt);
+    public Optional<RefreshToken> findByToken(String token){
+        return tokenRepository.findByToken(token);
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token){
+    public void verifyExpiration(RefreshToken token){
         if(token.getExpiryDate().compareTo(new Date())<0){
             tokenRepository.delete(token);
-            throw new RefreshTokenExpireException(String.format("%s Refresh token is expired. Please make a new login..!",token));
+            throw new RefreshTokenExpireException("Refresh token is expired. Please make a new login..!");
         }
-        return token;
     }
 
 }

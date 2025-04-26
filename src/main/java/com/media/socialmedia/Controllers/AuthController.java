@@ -55,7 +55,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
-        Authentication authentication = null;
+        Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
@@ -66,6 +66,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         AuthDetailsImpl userDetails = (AuthDetailsImpl) authentication.getPrincipal();
         String jwt = jwtCore.generateToken(userDetails);
+        tokenService.removeAllForUser(userDetails.getUserId());
         String refreshToken = tokenService.createRefreshToken(userDetails.getUserId()).getToken();
         Cookie newRefreshTokenCookie = new Cookie("refreshToken", refreshToken);
         newRefreshTokenCookie.setHttpOnly(true);

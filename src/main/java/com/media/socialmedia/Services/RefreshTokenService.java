@@ -34,7 +34,9 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token){
         return tokenRepository.findByToken(token);
     }
-
+    public void removeAllForUser(Long userId){
+        tokenRepository.deleteAllByUserId(userId);
+    }
     public void verifyExpiration(RefreshToken token){
         if(token.getExpiryDate().compareTo(new Date())<0){
             tokenRepository.delete(token);

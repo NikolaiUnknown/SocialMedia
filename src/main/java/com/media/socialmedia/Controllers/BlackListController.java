@@ -20,7 +20,7 @@ public class BlackListController {
         this.blackListService = blackListService;
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public Set<UserDataResponseDTO> allBlacklistedUsers(@AuthenticationPrincipal JwtUserDetails userDetails){
 
         return blackListService.getBlacklist(userDetails.getUserId());
@@ -43,7 +43,7 @@ public class BlackListController {
         try {
             blackListService.removeFromBlackList(userDetails.getUserId(),id);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("removed!");
     }

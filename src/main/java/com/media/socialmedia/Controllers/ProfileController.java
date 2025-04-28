@@ -36,7 +36,7 @@ public class ProfileController {
     }
     @Value("${socialmedia.pictures.dir}")
     private  String pictureDirectory;
-    @GetMapping("/user/{id}")
+    @GetMapping("/users/{id}")
     public UserDataResponseDTO getUser(@PathVariable("id") Long id,
                                        @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(id);
@@ -62,8 +62,8 @@ public class ProfileController {
     }
     @GetMapping("/status")
     public String getStatus(@AuthenticationPrincipal JwtUserDetails userDetails,
-                            @RequestParam long friendId){
-        return profileService.getStatus(userDetails.getUserId(),friendId).name();
+                            @RequestParam long id){
+        return profileService.getStatus(userDetails.getUserId(),id).name();
     }
     @GetMapping("/m")
     public long m(@AuthenticationPrincipal JwtUserDetails userDetails){
@@ -84,7 +84,7 @@ public class ProfileController {
                 profilePicture.transferTo(new File(pictureDirectory + filename));
                 settingRequest.setProfilePicture(filename);
             } catch (IOException e) {
-                return new ResponseEntity<>("Ошибка при сохранении файла",HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Error saving file",HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 

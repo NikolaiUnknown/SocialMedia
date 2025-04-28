@@ -6,5 +6,6 @@ public enum ProfileStatus {
     FRIENDS,
     INVITE,
     INVITED,
-    UNKNOWN
+    UNKNOWN,
+    BLOCKED
 }

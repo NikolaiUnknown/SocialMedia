@@ -45,7 +45,7 @@ public class PostController {
         try {
             postService.loadPostById(id);
         } catch (PostNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.ok(likeService.like(userDetails.getUserId(), id));
@@ -61,7 +61,7 @@ public class PostController {
         try {
             postService.create(user,request,file);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>("Ошибка при сохранении файла",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error saving file",HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.ok("success");
     }

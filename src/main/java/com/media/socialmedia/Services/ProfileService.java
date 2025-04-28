@@ -21,10 +21,13 @@ public class ProfileService {
                 .orElseThrow(() -> new UserNotCreatedException("User not found!"));
         User friend = userRepository.findById(friendId)
                 .orElseThrow(() -> new UserNotCreatedException("User not found!"));
-        if (friend.getBlacklist().contains(user)){
-            return ProfileStatus.BLACKLIST;
-        }  else if (user.getBlacklist().contains(friend)){
+        if (friend.isBlocked()){
+            return ProfileStatus.BLOCKED;
+        }
+        else if (friend.getBlacklist().contains(user)){
             return ProfileStatus.BLACKLISTED;
+        }  else if (user.getBlacklist().contains(friend)){
+            return ProfileStatus.BLACKLIST;
         }else if (user.getFriends().contains(friend) || user.getFriendsOf().contains(friend)){
             return ProfileStatus.FRIENDS;
         } else if (user.getInvites().contains(friend)) {

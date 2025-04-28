@@ -20,13 +20,13 @@ public class ImageController {
     private String pictureDirectory;
 
     @GetMapping("/{filename}")
-    public ResponseEntity<?> getProfilPicutre(@PathVariable("filename") String filename){
+    public ResponseEntity<?> getImage(@PathVariable("filename") String filename){
         File resource = new File(pictureDirectory + filename);
         byte[] imageData = null;
         try {
             imageData = Files.readAllBytes(resource.toPath());
         } catch (IOException e) {
-            return new ResponseEntity<>("Image not found!",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Image not found!",HttpStatus.NOT_FOUND);
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);

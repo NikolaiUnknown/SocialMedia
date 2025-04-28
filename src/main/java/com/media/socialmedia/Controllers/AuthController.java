@@ -111,7 +111,7 @@ public class AuthController {
         try {
             regService.register(registerRequest);
         } catch (UsernameIsUsedException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
         }
         LoginRequestDTO request = new LoginRequestDTO(registerRequest.getEmail(),registerRequest.getPassword());
         return ResponseEntity.ok(login(request,response).getBody());

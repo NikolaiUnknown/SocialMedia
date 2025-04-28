@@ -36,51 +36,48 @@ public class FriendController {
 
     @PostMapping("/invite")
     public ResponseEntity<?> invite(@AuthenticationPrincipal JwtUserDetails userDetails,
-                                    @RequestParam long friendId){
+                                    @RequestParam long id){
         try {
-            friendService.inviteToFriend(userDetails.getUserId(),friendId);
+            friendService.inviteToFriend(userDetails.getUserId(),id);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("invited!");
     }
 
     @PostMapping("/accept")
     public ResponseEntity<?> accept(@AuthenticationPrincipal JwtUserDetails userDetails,
-                                    @RequestParam long friendId){
+                                    @RequestParam long id){
         try {
-            friendService.acceptToFriend(userDetails.getUserId(),friendId);
+            friendService.acceptToFriend(userDetails.getUserId(),id);
         }catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("accepted!");
     }
     @PostMapping("/deny")
     public ResponseEntity<?> deny(@AuthenticationPrincipal JwtUserDetails userDetails,
-                                  @RequestParam long friendId){
+                                  @RequestParam long id){
         try {
-            friendService.deny(userDetails.getUserId(),friendId);
+            friendService.deny(userDetails.getUserId(),id);
         }catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("deny!");
     }
     @PostMapping("/remove")
-    public ResponseEntity<?> remove(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestParam long friendId){
+    public ResponseEntity<?> remove(@AuthenticationPrincipal JwtUserDetails userDetails,
+                                    @RequestParam long id){
         try {
-            friendService.remove(userDetails.getUserId(),friendId);
+            friendService.remove(userDetails.getUserId(),id);
         }catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("removed!");
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleException(InviteNotFoundException e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler
-    public ResponseEntity<String> handleException(UserNotCreatedException e){
+    public ResponseEntity<String> handleException(RuntimeException e){
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

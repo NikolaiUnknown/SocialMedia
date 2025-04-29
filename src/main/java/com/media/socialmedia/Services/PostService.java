@@ -9,6 +9,7 @@ import com.media.socialmedia.util.PostNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,6 +72,7 @@ public class PostService {
         }
         return post.get();
     }
+    @Cacheable(value = "posts",key = "#id")
     public PostResponseDTO getPost(Long id){
         PostResponseDTO post = converToPostResponse(loadPostById(id));
         post.setCountOfLike(likeService.getCountOfLike(id));

@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/images")
 public class ImageController {
     @Value("${socialmedia.pictures.dir}")
     private String pictureDirectory;

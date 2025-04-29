@@ -52,7 +52,10 @@ public class AuthController {
         this.jwtCore = jwtCore;
         this.userService = userService;
     }
-
+    @GetMapping
+    public User getUser(){
+        return userService.loadUserById(3);
+    }
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
         Authentication authentication;

@@ -3,7 +3,6 @@ package com.media.socialmedia.Services;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.Security.AuthDetailsImpl;
-import com.media.socialmedia.Security.JwtUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,5 +27,6 @@ public class UserService implements UserDetailsService{
     public User loadUserById(long id){
         return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
     }
+
 
 }

@@ -45,12 +45,12 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/a/**").permitAll()
-                        .requestMatchers("/post/like/**").fullyAuthenticated()
-                        .requestMatchers("/post/new").fullyAuthenticated()
-                        .requestMatchers("/post/whoLiked/**").fullyAuthenticated()
-                        .requestMatchers("/p/user/**").permitAll()
-                        .requestMatchers("/image/**").permitAll()
-                        .requestMatchers("/post/**").permitAll()
+                        .requestMatchers("/posts/like/**").fullyAuthenticated()
+                        .requestMatchers("/posts/new").fullyAuthenticated()
+                        .requestMatchers("/posts/whoLiked/**").fullyAuthenticated()
+                        .requestMatchers("/p/users/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/posts/**").permitAll()
                         .anyRequest().fullyAuthenticated()
 
                 ).addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);

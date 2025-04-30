@@ -1,12 +1,13 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDataResponseDTO;
+import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.Post;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.PostNotFoundException;
 import com.media.socialmedia.util.UsernameIsUsedException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,20 +20,28 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final UserService userService;
+    private final ModelMapper mapper;
 
     @Autowired
-    public AdminService(UserRepository userRepository, PostRepository postRepository) {
+    public AdminService(UserRepository userRepository, PostRepository postRepository, UserService userService, ModelMapper mapper) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.userService = userService;
+        this.mapper = mapper;
     }
 
     public void assign(Long userId){
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        if (user.isAdmin()){
-            throw new UsernameIsUsedException("This user is already admin");
+        try {
+            User user = userService.loadUserById(userId);
+            if (user.isAdmin()){
+                throw new UsernameIsUsedException("This user is already admin");
+            }
+            user.setAdmin(true);
+            userRepository.save(user);
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
         }
-        user.setAdmin(true);
-        userRepository.save(user);
     }
 
     public void deletePost(Long id) {
@@ -46,28 +55,36 @@ public class AdminService {
     }
 
     public void ban(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        if (user.isBlocked()){
-            throw new UsernameIsUsedException("This user is already banned");
+        try {
+            User user = userService.loadUserById(userId);
+            if (user.isBlocked()){
+                throw new UsernameIsUsedException("This user is already banned");
+            }
+            user.setBlocked(true);
+            userRepository.save(user);
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
         }
-        user.setBlocked(true);
-        userRepository.save(user);
     }
 
     public void unban(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        if (!user.isBlocked()){
-            throw new UsernameIsUsedException("This user is not banned");
+        try {
+            User user = userService.loadUserById(userId);
+            if (!user.isBlocked()){
+                throw new UsernameIsUsedException("This user is not banned");
+            }
+            user.setBlocked(false);
+            userRepository.save(user);
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
         }
-        user.setBlocked(false);
-        userRepository.save(user);
     }
 
-    public Set<UserDataResponseDTO> getUsersWhoLike(Long id) {
+    public Set<UserDTO> getUsersWhoLike(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException("Post not found!"));
         return post.getLikes().stream().map(this::userToUserDataResponse).collect(Collectors.toSet());
     }
-    private UserDataResponseDTO userToUserDataResponse(User user){
-        return new UserDataResponseDTO(user);
+    private UserDTO userToUserDataResponse(User user){
+        return mapper.map(user, UserDTO.class);
     }
 }

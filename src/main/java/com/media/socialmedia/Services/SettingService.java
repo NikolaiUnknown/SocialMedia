@@ -14,9 +14,8 @@ public class SettingService {
         this.userRepository = userRepository;
     }
 
-
-    public void setting(User user, SettingRequestDTO request){
-        userRepository.setUserInfoById(request.getFirstname(),request.getLastname(),request.getDateOfBirthday(),request.getCountry(),request.getProfilePicture(),user.getId());
+    public void setting(Long userId, SettingRequestDTO request){
+        userRepository.setUserInfoById(request.getFirstname(),request.getLastname(),request.getDateOfBirthday(),request.getCountry(),request.getProfilePicture(),userId);
     }
 
 }

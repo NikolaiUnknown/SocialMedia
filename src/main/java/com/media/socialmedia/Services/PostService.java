@@ -42,15 +42,15 @@ public class PostService {
         }
         return response;
     }
-    public void create(User user, PostCreateRequestDTO request){
+    public void create(Long userId, PostCreateRequestDTO request){
         Post post = new Post();
         post.setText(request.getText());
         post.setPhotoUrl(null);
-        post.setUserId(user.getId());
+        post.setUserId(userId);
         repository.save(post);
 
     }
-    public void create(User user, PostCreateRequestDTO request, MultipartFile file){
+    public void create(Long userId, PostCreateRequestDTO request, MultipartFile file){
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
         String filename = UUID.randomUUID() + extension;
         try {
@@ -62,7 +62,7 @@ public class PostService {
         Post post = new Post();
         post.setText(request.getText());
         post.setPhotoUrl(filename);
-        post.setUserId(user.getId());
+        post.setUserId(userId);
         repository.save(post);
     }
     public Post loadPostById(Long id){

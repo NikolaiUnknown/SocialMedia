@@ -28,8 +28,8 @@ public class RegService {
         if (userRepository.findUserByEmail(registerRequest.getEmail()) != null){
             throw new UsernameIsUsedException("This email address: " + registerRequest.getEmail() + " is already in use!");
         }
-        user.setFirstname("user" + user.getId());
-        user.setLastname("last" + user.getId());
+        user.setFirstname("null");
+        user.setLastname("null");
         user.setDateOfBirthday(new Date());
         user.setValid(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

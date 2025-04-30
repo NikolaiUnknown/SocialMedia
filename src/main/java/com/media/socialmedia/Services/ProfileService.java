@@ -1,44 +1,48 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDataResponseDTO;
+import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.User;
-import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.ProfileStatus;
-import com.media.socialmedia.util.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import java.util.Set;
 
 @Service
 public class ProfileService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     @Autowired
-    public ProfileService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public ProfileService(UserService userService) {
+        this.userService = userService;
     }
 
     public ProfileStatus getStatus(long userId,long friendId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotCreatedException("User not found!"));
-        User friend = userRepository.findById(friendId)
-                .orElseThrow(() -> new UserNotCreatedException("User not found!"));
-        if (friend.isBlocked()){
-            return ProfileStatus.BLOCKED;
+        try {
+            UserDTO user = userService.loadUserDtoById(userId);
+            UserDTO friend = userService.loadUserDtoById(friendId);
+            Set<UserDTO> userFriends = userService.loadUserFriends(userId);
+            Set<UserDTO> friendFriends = userService.loadUserFriends(friendId);
+            if (friend.isBlocked()){
+                return ProfileStatus.BLOCKED;
+            }
+            else if (/*friend.getBlacklist().contains(user)*/false){
+                return ProfileStatus.BLACKLISTED;
+            }  else if (/*user.getBlacklist().contains(friend)*/false){
+                return ProfileStatus.BLACKLIST;
+            }else if (userFriends.contains(friend) || friendFriends.contains(user)){
+                return ProfileStatus.FRIENDS;
+            } else if (/*user.getInvites().contains(friend)*/false) {
+                return ProfileStatus.INVITE;
+            } else if (/*user.getInvited().contains(friend)*/false) {
+                return ProfileStatus.INVITED;
+            }
+            return ProfileStatus.UNKNOWN;
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
         }
-        else if (friend.getBlacklist().contains(user)){
-            return ProfileStatus.BLACKLISTED;
-        }  else if (user.getBlacklist().contains(friend)){
-            return ProfileStatus.BLACKLIST;
-        }else if (user.getFriends().contains(friend) || user.getFriendsOf().contains(friend)){
-            return ProfileStatus.FRIENDS;
-        } else if (user.getInvites().contains(friend)) {
-            return ProfileStatus.INVITE;
-        } else if (user.getInvited().contains(friend)) {
-            return ProfileStatus.INVITED;
-        }
-        return ProfileStatus.UNKNOWN;
     }
 
-    public UserDataResponseDTO changeCredentials(UserDataResponseDTO response){
+    public UserDTO changeCredentials(UserDTO response){
         response.setEmail(null);
         response.setCountry(null);
         response.setDateOfBirthday(null);

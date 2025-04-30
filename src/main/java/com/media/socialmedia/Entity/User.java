@@ -1,6 +1,8 @@
 package com.media.socialmedia.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -16,9 +18,11 @@ import java.util.Set;
 @Entity
 @Table(name ="users")
 @Data
-@Component
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,7 +58,6 @@ public class User {
 
     private boolean isBlocked;
 
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "likes",
@@ -62,7 +65,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "post_id")
     )
     private Set<Post> likes = new HashSet<>();
-    @JsonIgnore
+
     @ManyToMany
     @JoinTable(
             name = "friends",
@@ -70,10 +73,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private Set<User> friends = new HashSet<>();
-    @JsonIgnore
+
     @ManyToMany(mappedBy = "friends")
     private Set<User> friendsOf = new HashSet<>();
-    @JsonIgnore
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "invites",
@@ -81,10 +84,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "user_to")
     )
     private Set<User> invites = new HashSet<>();
-    @JsonIgnore
     @ManyToMany(mappedBy = "invites")
     private Set<User> invited = new HashSet<>();
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "blacklist",

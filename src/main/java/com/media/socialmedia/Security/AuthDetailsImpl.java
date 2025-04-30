@@ -9,11 +9,10 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 @Getter
-@Component
 public class AuthDetailsImpl implements UserDetails {
     private final User user;
     private final boolean blocked;
-    @Autowired
+
     public AuthDetailsImpl(User user) {
         this.user = user;
         this.blocked = user.isBlocked();

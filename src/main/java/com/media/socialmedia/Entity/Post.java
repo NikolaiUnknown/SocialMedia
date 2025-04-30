@@ -1,9 +1,10 @@
 package com.media.socialmedia.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -11,8 +12,10 @@ import java.util.Set;
 
 @Data
 @Table(name = "posts")
-@Component
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,7 +1,7 @@
 package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.SettingRequestDTO;
-import com.media.socialmedia.DTO.UserDataResponseDTO;
+import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Services.ProfileService;
@@ -9,6 +9,7 @@ import com.media.socialmedia.Services.SettingService;
 import com.media.socialmedia.Services.UserService;
 import com.media.socialmedia.util.ProfileStatus;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,36 +29,38 @@ public class ProfileController {
     private final SettingService settingService;
     private final ProfileService profileService;
     private final UserService userService;
+    private final ModelMapper mapper;
     @Autowired
-    public ProfileController(SettingService settingService, ProfileService profileService, UserService userService)
+    public ProfileController(SettingService settingService, ProfileService profileService, UserService userService, ModelMapper mapper)
     {   this.profileService = profileService;
         this.settingService = settingService;
         this.userService = userService;
+        this.mapper = mapper;
     }
     @Value("${socialmedia.pictures.dir}")
     private  String pictureDirectory;
     @GetMapping("/users/{id}")
-    public UserDataResponseDTO getUser(@PathVariable("id") Long id,
-                                       @AuthenticationPrincipal JwtUserDetails userDetails){
+    public UserDTO getUser(@PathVariable("id") Long id,
+                           @AuthenticationPrincipal JwtUserDetails userDetails){
         User user = userService.loadUserById(id);
         if (user.isPrivate()){
             if (userDetails == null){
-                return profileService.changeCredentials(new UserDataResponseDTO(user));
+                return profileService.changeCredentials(mapper.map(user, UserDTO.class));
             }
             if (userDetails.getAuthorities().stream().
                     anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                return new UserDataResponseDTO(user);
+                return mapper.map(user, UserDTO.class);
             }
             Long authId = userDetails.getUserId();
             if (authId.equals(id)){
-                return new UserDataResponseDTO(user);
+                return mapper.map(user, UserDTO.class);
             }
             if (profileService.getStatus(authId, user.getId()).equals(ProfileStatus.FRIENDS)){
-                return new UserDataResponseDTO(user);
+                return mapper.map(user, UserDTO.class);
             }
-            return profileService.changeCredentials(new UserDataResponseDTO(user));
+            return profileService.changeCredentials(mapper.map(user, UserDTO.class));
         }
-        else return new UserDataResponseDTO(user);
+        else return mapper.map(user, UserDTO.class);
 
     }
     @GetMapping("/status")
@@ -75,7 +78,6 @@ public class ProfileController {
             @RequestPart("profilePicture") MultipartFile profilePicture,
             @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
-        User user = userService.loadUserById(userDetails.getUserId());
         if (!profilePicture.isEmpty()) {
             String extension = profilePicture.getOriginalFilename().substring(profilePicture.getOriginalFilename()
                                                                    .lastIndexOf('.'));
@@ -88,7 +90,7 @@ public class ProfileController {
             }
         }
 
-        settingService.setting(user, settingRequest);
+        settingService.setting(userDetails.getUserId(), settingRequest);
         return ResponseEntity.ok("success");
     }
 }

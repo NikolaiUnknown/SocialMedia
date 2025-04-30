@@ -54,12 +54,11 @@ public class PostController {
     public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequestDTO request,
                                    @RequestPart("image")MultipartFile file,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
-        User user = userService.loadUserById(userDetails.getUserId());
         if (file.isEmpty()) {
-            postService.create(user,request);
+            postService.create(userDetails.getUserId(),request);
         }
         try {
-            postService.create(user,request,file);
+            postService.create(userDetails.getUserId(),request,file);
         } catch (RuntimeException e) {
             return new ResponseEntity<>("Error saving file",HttpStatus.INTERNAL_SERVER_ERROR);
         }

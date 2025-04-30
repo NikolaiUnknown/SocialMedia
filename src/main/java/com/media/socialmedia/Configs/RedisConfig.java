@@ -1,5 +1,6 @@
 package com.media.socialmedia.Configs;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -30,5 +31,9 @@ public class RedisConfig {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .build();
+    }
+    @Bean
+    public ModelMapper mapper(){
+        return new ModelMapper();
     }
 }

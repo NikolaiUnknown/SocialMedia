@@ -1,10 +1,8 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.UserDataResponseDTO;
+import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.FriendService;
-import com.media.socialmedia.util.InviteNotFoundException;
-import com.media.socialmedia.util.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +20,15 @@ public class FriendController {
     }
 
     @GetMapping("/all")
-    public Set<UserDataResponseDTO> getAll(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDTO> getAll(@AuthenticationPrincipal JwtUserDetails userDetails){
         return friendService.getAllFriends(userDetails.getUserId());
     }
     @GetMapping("/invites")
-    public Set<UserDataResponseDTO> getInvites(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDTO> getInvites(@AuthenticationPrincipal JwtUserDetails userDetails){
         return friendService.getInvites(userDetails.getUserId());
     }
     @GetMapping("/invited")
-    public Set<UserDataResponseDTO> getInvited(@AuthenticationPrincipal JwtUserDetails userDetails){
+    public Set<UserDTO> getInvited(@AuthenticationPrincipal JwtUserDetails userDetails){
         return friendService.getInvited(userDetails.getUserId());
     }
 

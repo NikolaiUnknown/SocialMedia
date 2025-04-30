@@ -1,7 +1,6 @@
 package com.media.socialmedia.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -9,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
@@ -83,9 +82,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_from"),
             inverseJoinColumns = @JoinColumn(name = "user_to")
     )
-    private Set<User> invites = new HashSet<>();
-    @ManyToMany(mappedBy = "invites")
-    private Set<User> invited = new HashSet<>();
+    private Set<User> friendsInvitedByMe = new HashSet<>();
+    @ManyToMany(mappedBy = "friendsInvitedByMe")
+    private Set<User> friendsInvitingMe = new HashSet<>();
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "blacklist",

@@ -25,15 +25,15 @@ public class ProfileService {
             if (friend.isBlocked()){
                 return ProfileStatus.BLOCKED;
             }
-            else if (/*friend.getBlacklist().contains(user)*/false){
+            else if (userService.loadUserBlacklist(friendId).contains(user)){
                 return ProfileStatus.BLACKLISTED;
-            }  else if (/*user.getBlacklist().contains(friend)*/false){
+            }  else if (userService.loadUserBlacklist(userId).contains(friend)){
                 return ProfileStatus.BLACKLIST;
             }else if (userFriends.contains(friend) || friendFriends.contains(user)){
                 return ProfileStatus.FRIENDS;
-            } else if (/*user.getInvites().contains(friend)*/false) {
+            } else if (userService.loadInvites(userId).contains(friend)) {
                 return ProfileStatus.INVITE;
-            } else if (/*user.getInvited().contains(friend)*/false) {
+            } else if (userService.loadInvites(friendId).contains(user)) {
                 return ProfileStatus.INVITED;
             }
             return ProfileStatus.UNKNOWN;

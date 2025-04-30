@@ -43,7 +43,22 @@ public class UserService implements UserDetailsService{
 
     @Cacheable(value = "friends", key = "#id")
     public Set<UserDTO> loadUserFriends(long id) {
+        Set<User> userSet = userRepository.findFriendsById(id);
+        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+    }
+    @Cacheable(value = "friendsOf", key = "#id")
+    public Set<UserDTO> loadUserFriendsOf(long id) {
         Set<User> userSet = userRepository.findFriendsOfById(id);
+        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+    }
+    @Cacheable(value = "blacklist", key = "#id")
+    public Set<UserDTO> loadUserBlacklist(long id) {
+        Set<User> userSet = userRepository.findBlacklistById(id);
+        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+    }
+    @Cacheable(value = "invites", key = "#id")
+    public Set<UserDTO> loadInvites(long id) {
+        Set<User> userSet = userRepository.findInvitesById(id);
         return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
     }
 }

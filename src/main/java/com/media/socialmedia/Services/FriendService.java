@@ -29,13 +29,10 @@ public class FriendService {
 
     public Set<UserDTO> getAllFriends(long userId){
         try {
-            User user = userService.loadUserById(userId);
-            Set<User> friends = new HashSet<>();
-            friends.addAll(user.getFriends());
-            friends.addAll(user.getFriendsOf());
-            return friends.stream()
-                    .map(this::userToUserDataResponse)
-                    .collect(Collectors.toSet());
+            Set<UserDTO> friends = new HashSet<>();
+            friends.addAll(userService.loadUserFriends(userId));
+            friends.addAll(userService.loadUserFriendsOf(userId));
+            return friends;
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
@@ -44,7 +41,7 @@ public class FriendService {
     public Set<UserDTO> getInvites(long id) {
         try {
             User user = userService.loadUserById(id);
-            Set<User> invites = user.getInvites();
+            Set<User> invites = user.getFriendsInvitedByMe();
             return invites.stream()
                     .map(this::userToUserDataResponse)
                     .map(userData -> {
@@ -60,7 +57,7 @@ public class FriendService {
     public Set<UserDTO> getInvited(long id) {
         try {
             User user = userService.loadUserById(id);
-            Set<User> invited = user.getInvited();
+            Set<User> invited = user.getFriendsInvitingMe();
             return invited.stream()
                     .map(this::userToUserDataResponse)
                     .map(userData -> {
@@ -83,7 +80,7 @@ public class FriendService {
                     && !user.getFriendsOf().contains(friend)
                     && !user.getBlacklist().contains(friend)
                     && !friend.getBlacklist().contains(user)){
-                user.getInvites().add(friend);
+                user.getFriendsInvitedByMe().add(friend);
                 userRepository.save(user);
             }
             else throw new InviteNotFoundException("You are friends now!");
@@ -96,8 +93,8 @@ public class FriendService {
         try {
             User user = userService.loadUserById(userId);
             User friend = userService.loadUserById(friendId);
-            if (friend.getInvites().contains(user)) {
-                friend.getInvites().remove(user);
+            if (friend.getFriendsInvitedByMe().contains(user)) {
+                friend.getFriendsInvitedByMe().remove(user);
                 user.getFriends().add(friend);
                 friend.getFriendsOf().add(user);
                 userRepository.save(user);
@@ -112,11 +109,11 @@ public class FriendService {
         try {
             User user = userService.loadUserById(userId);
             User friend = userService.loadUserById(friendId);
-            if (friend.getInvites().contains(user)){
-                friend.getInvites().remove(user);
+            if (friend.getFriendsInvitedByMe().contains(user)){
+                friend.getFriendsInvitedByMe().remove(user);
                 userRepository.save(friend);
-            } else if (user.getInvites().contains(friend)) {
-                user.getInvites().remove(friend);
+            } else if (user.getFriendsInvitedByMe().contains(friend)) {
+                user.getFriendsInvitedByMe().remove(friend);
                 userRepository.save(user);
             } else throw new InviteNotFoundException("Invite not found!");
         } catch (UsernameNotFoundException e) {

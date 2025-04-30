@@ -42,25 +42,25 @@ public class ProfileController {
     @GetMapping("/users/{id}")
     public UserDTO getUser(@PathVariable("id") Long id,
                            @AuthenticationPrincipal JwtUserDetails userDetails){
-        User user = userService.loadUserById(id);
+        UserDTO user = userService.loadUserDtoById(id);
         if (user.isPrivate()){
             if (userDetails == null){
                 return profileService.changeCredentials(mapper.map(user, UserDTO.class));
             }
             if (userDetails.getAuthorities().stream().
                     anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                return mapper.map(user, UserDTO.class);
+                return user;
             }
             Long authId = userDetails.getUserId();
             if (authId.equals(id)){
-                return mapper.map(user, UserDTO.class);
+                return user;
             }
             if (profileService.getStatus(authId, user.getId()).equals(ProfileStatus.FRIENDS)){
-                return mapper.map(user, UserDTO.class);
+                return user;
             }
-            return profileService.changeCredentials(mapper.map(user, UserDTO.class));
+            return profileService.changeCredentials(user);
         }
-        else return mapper.map(user, UserDTO.class);
+        else return user;
 
     }
     @GetMapping("/status")

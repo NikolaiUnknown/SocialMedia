@@ -23,12 +23,11 @@ public class PostController {
 
     private final PostService postService;
     private final LikeService likeService;
-    private final UserService userService;
+
     @Autowired
     public PostController(PostService postService, LikeService likeService, UserService userService) {
         this.postService = postService;
         this.likeService = likeService;
-        this.userService = userService;
     }
 
     @GetMapping("/{id}")

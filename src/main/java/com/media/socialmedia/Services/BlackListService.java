@@ -50,10 +50,10 @@ public class BlackListService {
             switch (status){
                 case ProfileStatus.FRIENDS: throw new InviteNotFoundException("You are friends now!");
                 case ProfileStatus.INVITE: {
-                    user1.getInvites().remove(user2);
+                    user1.getFriendsInvitedByMe().remove(user2);
                 }
                 case ProfileStatus.INVITED: {
-                    user1.getInvited().remove(user2);
+                    user1.getFriendsInvitingMe().remove(user2);
                 }
             }
             user1.getBlacklist().add(user2);

@@ -24,25 +24,20 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository repository;
-    private final ModelMapper mapper;
     private final LikeService likeService;
+    private final CacheService cacheService;
     @Value("${socialmedia.pictures.dir}")
     private  String pictureDirectory;
     @Autowired
-    public PostService(PostRepository repository, ModelMapper mapper, LikeService likeService) {
+    public PostService(PostRepository repository, LikeService likeService, CacheService cacheService) {
         this.repository = repository;
-        this.mapper = mapper;
         this.likeService = likeService;
+        this.cacheService = cacheService;
     }
-    @Cacheable(value = "posts",key = "#userId")
+
     public Set<PostResponseDTO> loadPostsByUserId(long userId){
-        return repository.getPostsByUserId(userId).stream()
-                .map((Post p) -> {
-                    PostResponseDTO response =mapper.map(p, PostResponseDTO.class);
-                    response.setCountOfLike(likeService.getCountOfLike(p.getId()));
-                    return response;
-                })
-                .collect(Collectors.toSet());
+        return cacheService.loadCachedPostsByUserId(userId).stream()
+                .map(this::getPost).collect(Collectors.toSet());
     }
     public void create(Long userId, PostCreateRequestDTO request){
         Post post = new Post();
@@ -67,19 +62,10 @@ public class PostService {
         post.setUserId(userId);
         repository.save(post);
     }
-    public Post loadPostById(Long id){
-        Optional<Post> post = Optional.ofNullable(repository.getPostById(id));
-        if (post.isEmpty()){
-            throw new PostNotFoundException("Post not found!");
-        }
-        return post.get();
-    }
-    @Cacheable(value = "post",key = "#id")
     public PostResponseDTO getPost(Long id){
-        PostResponseDTO post = converToPostResponse(loadPostById(id));
-        post.setCountOfLike(likeService.getCountOfLike(id));
-        return post;
+        PostResponseDTO response = cacheService.getCachedPost(id);
+        response.setCountOfLike(likeService.getCountOfLike(id));
+        return response;
     }
-    private PostResponseDTO converToPostResponse(Post post){return mapper.map(post, PostResponseDTO.class);}
 
 }

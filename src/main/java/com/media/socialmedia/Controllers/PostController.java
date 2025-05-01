@@ -43,12 +43,6 @@ public class PostController {
     @PostMapping("/like/{id}")
     public ResponseEntity<?> like(@PathVariable("id") Long id,
                                   @AuthenticationPrincipal JwtUserDetails userDetails){
-        try {
-            postService.loadPostById(id);
-        } catch (PostNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
-        }
-
         return ResponseEntity.ok(likeService.like(userDetails.getUserId(), id));
     }
     @PostMapping(value="/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

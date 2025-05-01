@@ -25,22 +25,22 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findUserById(Long id);
 
     @Modifying
-    @Query(value = "SELECT u.friends from User u where u.id= :id")
-    Set<User> findFriendsById(Long id);
+    @Query("SELECT f.id FROM User u JOIN u.friends f WHERE u.id = :id")
+    Set<Long> findFriendsById(Long id);
 
     @Modifying
-    @Query(value = "SELECT u.friendsOf from User u where u.id= :id")
-    Set<User> findFriendsOfById(Long id);
+    @Query(value = "SELECT f.id FROM User u JOIN u.friendsOf f WHERE u.id= :id")
+    Set<Long> findFriendsOfById(Long id);
 
     @Modifying
-    @Query(value = "select u.blacklist from User u where u.id= :id")
-    Set<User> findBlacklistById(Long id);
+    @Query(value = "SELECT b.id FROM User u JOIN u.blacklist b WHERE u.id= :id")
+    Set<Long> findBlacklistById(Long id);
 
     @Modifying
-    @Query(value = "select u.usersInvitedByMe from User u where u.id= :id")
-    Set<User> findInvitesById(Long id);
+    @Query(value = "SELECT i.id FROM User u JOIN u.usersInvitedByMe i WHERE u.id= :id")
+    Set<Long> findInvitesById(Long id);
 
     @Modifying
-    @Query(value = "select u.usersInvitingMe from User u where u.id= :id")
-    Set<User> findInvitesOfById(Long id);
+    @Query(value = "SELECT i.id from User u JOIN u.usersInvitingMe i WHERE u.id= :id")
+    Set<Long> findInvitesOfById(Long id);
 }

@@ -25,11 +25,11 @@ public class FriendController {
     }
     @GetMapping("/invites")
     public Set<UserDTO> getInvites(@AuthenticationPrincipal JwtUserDetails userDetails){
-        return friendService.getInvites(userDetails.getUserId());
+        return friendService.getUsersInvitedByMe(userDetails.getUserId());
     }
     @GetMapping("/invited")
     public Set<UserDTO> getInvited(@AuthenticationPrincipal JwtUserDetails userDetails){
-        return friendService.getInvited(userDetails.getUserId());
+        return friendService.getUsersInvitingMe(userDetails.getUserId());
     }
 
     @PostMapping("/invite")

@@ -5,26 +5,27 @@ import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.InviteNotFoundException;
 import com.media.socialmedia.util.UsernameIsUsedException;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class FriendService {
     private final UserRepository userRepository;
-    private final ProfileService profileService;
     private final UserService userService;
-    private final ModelMapper mapper;
+    private final RedisTemplate<String, String> template;
+
     @Autowired
-    public FriendService(UserRepository userRepository, ProfileService profileService, UserService userService, ModelMapper mapper) {
+    public FriendService(UserRepository userRepository, UserService userService, RedisTemplate<String, String> template) {
         this.userRepository = userRepository;
-        this.profileService = profileService;
         this.userService = userService;
-        this.mapper = mapper;
+        this.template = template;
     }
 
     public Set<UserDTO> getAllFriends(long userId){
@@ -38,34 +39,16 @@ public class FriendService {
         }
     }
 
-    public Set<UserDTO> getInvites(long id) {
+    public Set<UserDTO> getUsersInvitedByMe(long id) {
         try {
-            User user = userService.loadUserById(id);
-            Set<User> invites = user.getFriendsInvitedByMe();
-            return invites.stream()
-                    .map(this::userToUserDataResponse)
-                    .map(userData -> {
-                        if (userData.isPrivate()){
-                            return profileService.changeCredentials(userData);
-                        }
-                        return userData;
-                    }).collect(Collectors.toSet());
+            return userService.loadInvites(id);
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
     }
-    public Set<UserDTO> getInvited(long id) {
+    public Set<UserDTO> getUsersInvitingMe(long id) {
         try {
-            User user = userService.loadUserById(id);
-            Set<User> invited = user.getFriendsInvitingMe();
-            return invited.stream()
-                    .map(this::userToUserDataResponse)
-                    .map(userData -> {
-                        if (userData.isPrivate()){
-                            return profileService.changeCredentials(userData);
-                        }
-                        return userData;
-                    }).collect(Collectors.toSet());
+            return userService.loadInvitesForMe(id);
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
@@ -80,7 +63,9 @@ public class FriendService {
                     && !user.getFriendsOf().contains(friend)
                     && !user.getBlacklist().contains(friend)
                     && !friend.getBlacklist().contains(user)){
-                user.getFriendsInvitedByMe().add(friend);
+                user.getUsersInvitedByMe().add(friend);
+                template.delete(Arrays.asList("invites::%d".formatted(userId)
+                                            , "invitesOf::%d".formatted(friendId)));
                 userRepository.save(user);
             }
             else throw new InviteNotFoundException("You are friends now!");
@@ -93,10 +78,16 @@ public class FriendService {
         try {
             User user = userService.loadUserById(userId);
             User friend = userService.loadUserById(friendId);
-            if (friend.getFriendsInvitedByMe().contains(user)) {
-                friend.getFriendsInvitedByMe().remove(user);
+            if (friend.getUsersInvitedByMe().contains(user)) {
+                friend.getUsersInvitedByMe().remove(user);
                 user.getFriends().add(friend);
                 friend.getFriendsOf().add(user);
+                template.delete(Arrays.asList("friends::%d".formatted(userId)
+                                            , "friendsOf::%d".formatted(userId)
+                                            , "friends::%d".formatted(friendId)
+                                            , "friendsOf::%d".formatted(friendId)
+                                            , "invites::%d".formatted(friendId)
+                                            , "invitesOf::%d".formatted(userId)));
                 userRepository.save(user);
                 userRepository.save(friend);
             }
@@ -109,11 +100,13 @@ public class FriendService {
         try {
             User user = userService.loadUserById(userId);
             User friend = userService.loadUserById(friendId);
-            if (friend.getFriendsInvitedByMe().contains(user)){
-                friend.getFriendsInvitedByMe().remove(user);
+            if (friend.getUsersInvitedByMe().contains(user)){
+                friend.getUsersInvitedByMe().remove(user);
+                template.delete("invites::%d".formatted(friendId));
                 userRepository.save(friend);
-            } else if (user.getFriendsInvitedByMe().contains(friend)) {
-                user.getFriendsInvitedByMe().remove(friend);
+            } else if (user.getUsersInvitedByMe().contains(friend)) {
+                user.getUsersInvitedByMe().remove(friend);
+                template.delete("invites::%d".formatted(userId));
                 userRepository.save(user);
             } else throw new InviteNotFoundException("Invite not found!");
         } catch (UsernameNotFoundException e) {
@@ -126,18 +119,18 @@ public class FriendService {
             User friend = userService.loadUserById(friendId);
             if (user.getFriends().contains(friend)){
                 user.getFriends().remove(friend);
+                template.delete("friends::%d".formatted(userId));
+                template.delete("friendsOf::%d".formatted(friendId));
                 userRepository.save(friend);
             } else if (user.getFriendsOf().contains(friend)) {
                 friend.getFriends().remove(user);
+                template.delete("friends::%d".formatted(friendId));
+                template.delete("friendsOf::%d".formatted(userId));
                 userRepository.save(friend);
             } else throw new InviteNotFoundException(friend.getFirstname()+ " is not your friend!");
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
     }
-    private UserDTO userToUserDataResponse(User user){
-        return mapper.map(user, UserDTO.class);
-    }
-
 
 }

@@ -1,6 +1,5 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.Post;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -21,14 +18,12 @@ public class AdminService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final UserService userService;
-    private final ModelMapper mapper;
 
     @Autowired
-    public AdminService(UserRepository userRepository, PostRepository postRepository, UserService userService, ModelMapper mapper) {
+    public AdminService(UserRepository userRepository, PostRepository postRepository, UserService userService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.userService = userService;
-        this.mapper = mapper;
     }
 
     public void assign(Long userId){
@@ -78,13 +73,5 @@ public class AdminService {
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
-    }
-
-    public Set<UserDTO> getUsersWhoLike(Long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException("Post not found!"));
-        return post.getLikes().stream().map(this::userToUserDataResponse).collect(Collectors.toSet());
-    }
-    private UserDTO userToUserDataResponse(User user){
-        return mapper.map(user, UserDTO.class);
     }
 }

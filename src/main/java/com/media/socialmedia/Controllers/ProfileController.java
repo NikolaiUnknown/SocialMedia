@@ -93,4 +93,5 @@ public class ProfileController {
         settingService.setting(userDetails.getUserId(), settingRequest);
         return ResponseEntity.ok("success");
     }
+
 }

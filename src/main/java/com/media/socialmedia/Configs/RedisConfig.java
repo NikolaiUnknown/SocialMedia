@@ -25,12 +25,18 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(JedisConnectionFactory  connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofSeconds(10))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+                .entryTtl(Duration.ofMinutes(1))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.
+                        fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .build();
+    }
+    @Bean RedisTemplate<?,?> template(JedisConnectionFactory connectionFactory){
+        RedisTemplate<?,?> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        return template;
     }
     @Bean
     public ModelMapper mapper(){

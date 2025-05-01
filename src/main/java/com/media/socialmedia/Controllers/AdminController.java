@@ -79,9 +79,5 @@ public class AdminController {
         return ResponseEntity.ok(String.format("User %d is unbanned",id));
     }
 
-    @GetMapping("/posts/whoLiked/{id}")
-    public Set<UserDTO> whoLiked(@PathVariable Long id){
-        return adminService.getUsersWhoLike(id);
-    }
 }
 

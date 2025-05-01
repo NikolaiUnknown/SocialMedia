@@ -41,24 +41,41 @@ public class UserService implements UserDetailsService{
         return mapper.map(user, UserDTO.class);
     }
 
+
+
     @Cacheable(value = "friends", key = "#id")
     public Set<UserDTO> loadUserFriends(long id) {
         Set<User> userSet = userRepository.findFriendsById(id);
-        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+        return userSet.stream()
+                .map((User u) ->mapper.map(u,UserDTO.class))
+                .collect(Collectors.toSet());
     }
     @Cacheable(value = "friendsOf", key = "#id")
     public Set<UserDTO> loadUserFriendsOf(long id) {
         Set<User> userSet = userRepository.findFriendsOfById(id);
-        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+        return userSet.stream()
+                .map((User u) ->mapper.map(u,UserDTO.class))
+                .collect(Collectors.toSet());
     }
     @Cacheable(value = "blacklist", key = "#id")
     public Set<UserDTO> loadUserBlacklist(long id) {
         Set<User> userSet = userRepository.findBlacklistById(id);
-        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+        return userSet.stream()
+                .map((User u) ->mapper.map(u,UserDTO.class))
+                .collect(Collectors.toSet());
     }
     @Cacheable(value = "invites", key = "#id")
     public Set<UserDTO> loadInvites(long id) {
         Set<User> userSet = userRepository.findInvitesById(id);
-        return userSet.stream().map((User u) ->mapper.map(u,UserDTO.class)).collect(Collectors.toSet());
+        return userSet.stream()
+                .map((User u) ->mapper.map(u,UserDTO.class))
+                .collect(Collectors.toSet());
+    }
+    @Cacheable(value = "invitesOf", key = "#id")
+    public Set<UserDTO> loadInvitesForMe(long id) {
+        Set<User> userSet = userRepository.findInvitesOfById(id);
+        return userSet.stream()
+                .map((User u) ->mapper.map(u,UserDTO.class))
+                .collect(Collectors.toSet());
     }
 }

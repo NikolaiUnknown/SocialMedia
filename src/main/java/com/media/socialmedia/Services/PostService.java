@@ -16,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -32,15 +34,15 @@ public class PostService {
         this.mapper = mapper;
         this.likeService = likeService;
     }
-    public PostResponseDTO[] loadPostsByUserId(long userId){
-        Post[] posts = repository.getPostsByUserId(userId);
-        PostResponseDTO[] response = new PostResponseDTO[posts.length];
-        for (int i = 0;i<posts.length;i++){
-            PostResponseDTO ans = converToPostResponse(posts[i]);
-            ans.setCountOfLike(likeService.getCountOfLike(posts[i].getId()));
-            response[i] = ans;
-        }
-        return response;
+    @Cacheable(value = "posts",key = "#userId")
+    public Set<PostResponseDTO> loadPostsByUserId(long userId){
+        return repository.getPostsByUserId(userId).stream()
+                .map((Post p) -> {
+                    PostResponseDTO response =mapper.map(p, PostResponseDTO.class);
+                    response.setCountOfLike(likeService.getCountOfLike(p.getId()));
+                    return response;
+                })
+                .collect(Collectors.toSet());
     }
     public void create(Long userId, PostCreateRequestDTO request){
         Post post = new Post();
@@ -72,7 +74,7 @@ public class PostService {
         }
         return post.get();
     }
-    @Cacheable(value = "posts",key = "#id")
+    @Cacheable(value = "post",key = "#id")
     public PostResponseDTO getPost(Long id){
         PostResponseDTO post = converToPostResponse(loadPostById(id));
         post.setCountOfLike(likeService.getCountOfLike(id));

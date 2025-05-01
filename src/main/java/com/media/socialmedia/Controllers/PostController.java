@@ -17,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/posts")
 public class PostController {
@@ -35,7 +37,7 @@ public class PostController {
         return postService.getPost(id);
     }
     @GetMapping("/all/{id}")
-    public PostResponseDTO[] getAllPostsByUser(@PathVariable("id") long userId){
+    public Set<PostResponseDTO> getAllPostsByUser(@PathVariable("id") long userId){
         return postService.loadPostsByUserId(userId);
     }
     @PostMapping("/like/{id}")

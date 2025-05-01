@@ -30,6 +30,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -76,23 +78,27 @@ public class AuthController {
         AuthDetailsImpl userDetails = (AuthDetailsImpl) authentication.getPrincipal();
         String jwt = jwtCore.generateToken(userDetails);
         tokenService.removeAllForUser(userDetails.getUserId());
-        String refreshToken = tokenService.createRefreshToken(userDetails.getUserId()).getToken();
-        Cookie newRefreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        RefreshToken refreshToken = tokenService.createRefreshToken(userDetails.getUserId());
+        String token = refreshToken.getToken();
+        Cookie newRefreshTokenCookie = new Cookie("refreshToken", token);
         newRefreshTokenCookie.setHttpOnly(true);
 //        newRefreshTokenCookie.setSecure(true); // Only for HTTPS
         newRefreshTokenCookie.setPath("/");
-        newRefreshTokenCookie.setMaxAge(Integer.MAX_VALUE);
+        newRefreshTokenCookie.setMaxAge((int)refreshToken.getExpiryDate().getTime());
         response.addCookie(newRefreshTokenCookie);
         return ResponseEntity.ok(jwt);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String token){
+
+        System.out.println(token);
         return tokenService.findByToken(token)
                 .map((refreshToken) -> {
                     try {
                         tokenService.verifyExpiration(refreshToken);
                     }catch (RefreshTokenExpireException e){
+                        System.out.println(e.getMessage());
                         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
                     }
                     return refreshToken;
@@ -125,6 +131,7 @@ public class AuthController {
         LoginRequestDTO request = new LoginRequestDTO(registerRequest.getEmail(),registerRequest.getPassword());
         return ResponseEntity.ok(login(request,response).getBody());
     }
+
     @ExceptionHandler
     private ResponseEntity<UserErrorResponse> handleException(ResponseStatusException e){
         UserErrorResponse response = new UserErrorResponse(e.getReason());

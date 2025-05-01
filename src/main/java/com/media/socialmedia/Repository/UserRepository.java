@@ -25,11 +25,11 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findUserById(Long id);
 
     @Modifying
-    @Query(value = "SELECT u.friends from User u where u.id= :id",nativeQuery = false)
+    @Query(value = "SELECT u.friends from User u where u.id= :id")
     Set<User> findFriendsById(Long id);
 
     @Modifying
-    @Query(value = "SELECT u.friendsOf from User u where u.id= :id",nativeQuery = false)
+    @Query(value = "SELECT u.friendsOf from User u where u.id= :id")
     Set<User> findFriendsOfById(Long id);
 
     @Modifying
@@ -37,6 +37,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Set<User> findBlacklistById(Long id);
 
     @Modifying
-    @Query(value = "select u.friendsInvitedByMe from User u where u.id= :id")
+    @Query(value = "select u.usersInvitedByMe from User u where u.id= :id")
     Set<User> findInvitesById(Long id);
+
+    @Modifying
+    @Query(value = "select u.usersInvitingMe from User u where u.id= :id")
+    Set<User> findInvitesOfById(Long id);
 }

@@ -82,9 +82,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_from"),
             inverseJoinColumns = @JoinColumn(name = "user_to")
     )
-    private Set<User> friendsInvitedByMe = new HashSet<>();
-    @ManyToMany(mappedBy = "friendsInvitedByMe")
-    private Set<User> friendsInvitingMe = new HashSet<>();
+    private Set<User> usersInvitedByMe = new HashSet<>();
+    @ManyToMany(mappedBy = "usersInvitedByMe")
+    private Set<User> usersInvitingMe = new HashSet<>();
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "blacklist",

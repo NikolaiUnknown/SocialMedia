@@ -2,11 +2,12 @@ spring:
   application:
     name: SocialMedia
 #DATA
+  #Postgres
   datasource:
     url: jdbc:postgresql://localhost:5432/SocialMedia
     username: postgres
     password: root
-#FILE
+  #FILE
   servlet:
     multipart:
       enabled: true
@@ -14,6 +15,11 @@ spring:
       max-request-size: 10MB
   jpa:
     show-sql: true
+  #Redis
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
 #SERVER
 server:
   port: 8081

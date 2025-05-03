@@ -6,7 +6,6 @@ import com.media.socialmedia.Repository.PostRepository;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.PostNotFoundException;
 import com.media.socialmedia.util.UsernameIsUsedException;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

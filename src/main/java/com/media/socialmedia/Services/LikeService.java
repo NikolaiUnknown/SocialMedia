@@ -6,7 +6,6 @@ import com.media.socialmedia.Repository.PostRepository;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +15,14 @@ public class LikeService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final RedisTemplate<String,String> template;
+    private final CacheUpdateService cacheUpdateService;
 
     @Autowired
-    public LikeService(PostRepository postRepository, UserRepository userRepository, UserService userService, RedisTemplate<String, String> template) {
+    public LikeService(PostRepository postRepository, UserRepository userRepository, UserService userService, CacheUpdateService cacheUpdateService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.userService = userService;
-        this.template = template;
+        this.cacheUpdateService = cacheUpdateService;
     }
 
     public long like(long userId, long postId){
@@ -32,12 +31,13 @@ public class LikeService {
             Post post = postRepository.findById(postId).orElseThrow(() -> new UserNotCreatedException("Post not found!"));
             if (user.getLikes().contains(post)){
                 user.getLikes().remove(post);
+
             }
             else {
                 user.getLikes().add(post);
             }
             userRepository.save(user);
-            template.delete("posts::%d".formatted(post.getUserId()));
+            cacheUpdateService.deletePostFromCache(postId);
             return getCountOfLike(postId);
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());

@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,18 +27,25 @@ public class PostService {
     private final PostRepository repository;
     private final LikeService likeService;
     private final CacheService cacheService;
+    private final ModelMapper mapper;
     @Value("${socialmedia.pictures.dir}")
     private  String pictureDirectory;
     @Autowired
-    public PostService(PostRepository repository, LikeService likeService, CacheService cacheService) {
+    public PostService(PostRepository repository, LikeService likeService, CacheService cacheService, ModelMapper mapper) {
         this.repository = repository;
         this.likeService = likeService;
         this.cacheService = cacheService;
+        this.mapper = mapper;
     }
 
     public Set<PostResponseDTO> loadPostsByUserId(long userId){
-        return cacheService.loadCachedPostsByUserId(userId).stream()
-                .map(this::getPost).collect(Collectors.toSet());
+        try {
+            return cacheService.loadCachedPostsByUserId(userId).stream()
+                    .map(this::getPost).collect(Collectors.toSet());
+        } catch (RedisConnectionFailureException e) {
+            return repository.findPostsIdByUserId(userId).stream()
+                    .map(this::getPost).collect(Collectors.toSet());
+        }
     }
     public void create(Long userId, PostCreateRequestDTO request){
         Post post = new Post();
@@ -63,9 +71,16 @@ public class PostService {
         repository.save(post);
     }
     public PostResponseDTO getPost(Long id){
-        PostResponseDTO response = cacheService.getCachedPost(id);
-        response.setCountOfLike(likeService.getCountOfLike(id));
-        return response;
+        try {
+            PostResponseDTO response = cacheService.getCachedPost(id);
+            response.setCountOfLike(likeService.getCountOfLike(id));
+            return response;
+        } catch (RedisConnectionFailureException e) {
+            Post post = repository.findById(id).orElseThrow(()-> new PostNotFoundException("Post not found!"));
+            PostResponseDTO response = mapper.map(post, PostResponseDTO.class);
+            response.setCountOfLike(likeService.getCountOfLike(id));
+            return response;
+        }
     }
 
 }

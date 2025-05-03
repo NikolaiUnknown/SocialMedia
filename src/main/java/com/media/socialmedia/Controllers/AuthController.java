@@ -29,8 +29,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -84,15 +82,13 @@ public class AuthController {
         newRefreshTokenCookie.setHttpOnly(true);
 //        newRefreshTokenCookie.setSecure(true); // Only for HTTPS
         newRefreshTokenCookie.setPath("/");
-        newRefreshTokenCookie.setMaxAge((int)refreshToken.getExpiryDate().getTime());
+        newRefreshTokenCookie.setMaxAge((int)(refreshToken.getExpiryDate().getTime() + new Date().getTime()));
         response.addCookie(newRefreshTokenCookie);
         return ResponseEntity.ok(jwt);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String token){
-
-        System.out.println(token);
         return tokenService.findByToken(token)
                 .map((refreshToken) -> {
                     try {

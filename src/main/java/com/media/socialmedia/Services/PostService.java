@@ -3,7 +3,6 @@ package com.media.socialmedia.Services;
 import com.media.socialmedia.DTO.PostCreateRequestDTO;
 import com.media.socialmedia.DTO.PostResponseDTO;
 import com.media.socialmedia.Entity.Post;
-import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
 import com.media.socialmedia.util.Caches;
 import com.media.socialmedia.util.PostNotFoundException;
@@ -11,14 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,7 +36,6 @@ public class PostService {
         this.cacheService = cacheService;
         this.mapper = mapper;
     }
-
     public Set<PostResponseDTO> loadPostsByUserId(long userId){
         try {
             return cacheService.getCacheFrom(Caches.POSTS,userId,() ->repository.findPostsIdByUserId(userId).stream()

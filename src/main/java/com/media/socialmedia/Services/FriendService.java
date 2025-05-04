@@ -3,6 +3,7 @@ package com.media.socialmedia.Services;
 import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
+import com.media.socialmedia.util.Caches;
 import com.media.socialmedia.util.InviteNotFoundException;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,10 @@ import java.util.Set;
 public class FriendService {
     private final UserRepository userRepository;
     private final UserService userService;
-    private final CacheUpdateService cacheUpdateService;
     @Autowired
-    public FriendService(UserRepository userRepository, UserService userService, CacheUpdateService cacheUpdateService) {
+    public FriendService(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
         this.userService = userService;
-        this.cacheUpdateService = cacheUpdateService;
     }
 
     public Set<UserDTO> getAllFriends(long userId){
@@ -59,8 +58,8 @@ public class FriendService {
                     && !user.getBlacklist().contains(friend)
                     && !friend.getBlacklist().contains(user)){
                 user.getUsersInvitedByMe().add(friend);
-                cacheUpdateService.addToInvites(userId,user.getUsersInvitedByMe(),friendId);
-                cacheUpdateService.addToInvitesOf(friendId,friend.getUsersInvitingMe(),userId);
+                userService.addToCache(Caches.INVITES,userId,user.getUsersInvitedByMe(),friendId);
+                userService.addToCache(Caches.INVITES_OF,friendId,friend.getUsersInvitingMe(),userId);
                 userRepository.save(user);
             }
             else throw new InviteNotFoundException("You are friends now!");
@@ -77,10 +76,10 @@ public class FriendService {
                 friend.getUsersInvitedByMe().remove(user);
                 user.getFriends().add(friend);
                 friend.getFriendsOf().add(user);
-                cacheUpdateService.addToFriends(userId,user.getFriends(),friendId);
-                cacheUpdateService.addToFriendsOf(friendId,friend.getFriendsOf(),userId);
-                cacheUpdateService.deleteFromInvites(friendId,friend.getUsersInvitedByMe(),userId);
-                cacheUpdateService.deleteFromInvitesOf(userId,user.getUsersInvitingMe(),friendId);
+                userService.addToCache(Caches.FRIENDS,userId,user.getFriends(),friendId);
+                userService.addToCache(Caches.FRIENDS_OF,friendId,friend.getFriendsOf(),userId);
+                userService.removeFromCache(Caches.INVITES,friendId,friend.getUsersInvitedByMe(),userId);
+                userService.removeFromCache(Caches.INVITES_OF,userId,user.getUsersInvitingMe(),friendId);
                 userRepository.save(user);
                 userRepository.save(friend);
             }
@@ -95,13 +94,13 @@ public class FriendService {
             User friend = userService.loadUserById(friendId);
             if (friend.getUsersInvitedByMe().contains(user)){
                 friend.getUsersInvitedByMe().remove(user);
-                cacheUpdateService.deleteFromInvites(friendId,friend.getUsersInvitedByMe(),userId);
-                cacheUpdateService.deleteFromInvitesOf(userId,user.getUsersInvitingMe(),friendId);
+                userService.removeFromCache(Caches.INVITES,friendId,friend.getUsersInvitedByMe(),userId);
+                userService.removeFromCache(Caches.INVITES_OF,userId,user.getUsersInvitingMe(),friendId);
                 userRepository.save(friend);
             } else if (user.getUsersInvitedByMe().contains(friend)) {
                 user.getUsersInvitedByMe().remove(friend);
-                cacheUpdateService.deleteFromInvites(userId,user.getUsersInvitedByMe(),friendId);
-                cacheUpdateService.deleteFromInvitesOf(friendId,friend.getUsersInvitedByMe(),userId);
+                userService.removeFromCache(Caches.INVITES,userId,user.getUsersInvitedByMe(),friendId);
+                userService.removeFromCache(Caches.INVITES_OF,friendId,friend.getUsersInvitedByMe(),userId);
                 userRepository.save(user);
             } else throw new InviteNotFoundException("Invite not found!");
         } catch (UsernameNotFoundException e) {
@@ -114,13 +113,13 @@ public class FriendService {
             User friend = userService.loadUserById(friendId);
             if (user.getFriends().contains(friend)){
                 user.getFriends().remove(friend);
-                cacheUpdateService.deleteFromFriends(userId,user.getFriends(),friendId);
-                cacheUpdateService.deleteFromFriendsOf(friendId,friend.getFriendsOf(),userId);
+                userService.removeFromCache(Caches.FRIENDS,userId,user.getFriends(),friendId);
+                userService.removeFromCache(Caches.FRIENDS_OF,friendId,friend.getFriendsOf(),userId);
                 userRepository.save(friend);
             } else if (user.getFriendsOf().contains(friend)) {
                 friend.getFriends().remove(user);
-                cacheUpdateService.deleteFromFriends(friendId,friend.getFriends(),userId);
-                cacheUpdateService.deleteFromFriendsOf(userId,user.getFriendsOf(),friendId);
+                userService.removeFromCache(Caches.FRIENDS,friendId,friend.getFriends(),userId);
+                userService.removeFromCache(Caches.FRIENDS_OF,userId,user.getFriendsOf(),friendId);
                 userRepository.save(friend);
             } else throw new InviteNotFoundException(friend.getFirstname()+ " is not your friend!");
         } catch (UsernameNotFoundException e) {

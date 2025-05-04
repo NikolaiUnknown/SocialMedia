@@ -4,6 +4,8 @@ import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.Security.AuthDetailsImpl;
+import com.media.socialmedia.util.Caches;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -11,10 +13,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService implements UserDetailsService{
 
@@ -43,7 +47,9 @@ public class UserService implements UserDetailsService{
 
     public UserDTO loadUserDtoById(long id){
         try {
-            return cacheService.loadCachedUserDtoById(id);
+            return cacheService.getCacheFrom(
+                    Caches.USERS,id,() -> mapper.map(loadUserById(id),UserDTO.class)
+            );
         }catch (RedisConnectionFailureException e){
             return mapper.map(loadUserById(id),UserDTO.class);
         }
@@ -51,8 +57,9 @@ public class UserService implements UserDetailsService{
 
     public Set<UserDTO> loadUserFriends(long id){
         try {
-            return cacheService.loadCachedUserFriends(id).stream()
-                    .map(cacheService::loadCachedUserDtoById)
+            return cacheService.getCacheFrom(Caches.FRIENDS,id,() -> userRepository.findFriendsById(id))
+                    .stream()
+                    .map(this::loadUserDtoById)
                     .collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
             return userRepository.findFriendsById(id).stream()
@@ -63,8 +70,9 @@ public class UserService implements UserDetailsService{
 
     public Set<UserDTO> loadUserFriendsOf(long id){
         try {
-            return cacheService.loadCachedUserFriendsOf(id).stream()
-                    .map(cacheService::loadCachedUserDtoById)
+            return cacheService.getCacheFrom(Caches.FRIENDS_OF,id,() -> userRepository.findFriendsOfById(id))
+                    .stream()
+                    .map(this::loadUserDtoById)
                     .collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
             return userRepository.findFriendsOfById(id).stream()
@@ -75,8 +83,9 @@ public class UserService implements UserDetailsService{
 
     public Set<UserDTO> loadUserBlacklist(long id){
         try {
-            return cacheService.loadCachedUserBlacklist(id).stream()
-                    .map(cacheService::loadCachedUserDtoById)
+            return cacheService.getCacheFrom(Caches.BLACKLIST,id,() -> userRepository.findBlacklistById(id))
+                    .stream()
+                    .map(this::loadUserDtoById)
                     .collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
             return userRepository.findBlacklistById(id).stream()
@@ -87,8 +96,9 @@ public class UserService implements UserDetailsService{
 
     public Set<UserDTO> loadInvites(long id){
         try {
-            return cacheService.loadCachedInvites(id).stream()
-                    .map(cacheService::loadCachedUserDtoById)
+            return cacheService.getCacheFrom(Caches.INVITES,id,() -> userRepository.findInvitesById(id))
+                    .stream()
+                    .map(this::loadUserDtoById)
                     .collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
             return userRepository.findInvitesById(id).stream()
@@ -99,14 +109,44 @@ public class UserService implements UserDetailsService{
 
     public Set<UserDTO> loadInvitesForMe(long id){
         try {
-            return cacheService.loadCachedInvitesForMe(id).stream()
-                    .map(cacheService::loadCachedUserDtoById)
+            return cacheService.getCacheFrom(Caches.INVITES_OF,id,() -> userRepository.findInvitesOfById(id))
+                    .stream()
+                    .map(this::loadUserDtoById)
                     .collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
             return userRepository.findInvitesOfById(id).stream()
                     .map(this::loadUserDtoById)
                     .collect(Collectors.toSet());
         }
     }
-
+    public void addToCache(Caches cacheName, Long userId, Set<User> users, Long friendId){
+        try {
+            Set<Long> set = users.stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet());
+            set.add(friendId);
+            cacheService.updateInCache(cacheName,userId,set);
+        } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
+        }
+    }
+    public void removeFromCache(Caches cacheName, Long userId, Set<User> users, Long friendId){
+        try {
+            Set<Long> set = users.stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet());
+            set.remove(friendId);
+            cacheService.updateInCache(cacheName,userId,set);
+        } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
+        }
+    }
+    public void evictFromCache(Caches cacheName, Long key){
+        try {
+            cacheService.evictFromCache(cacheName, key);
+        } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
+        }
+    }
 }

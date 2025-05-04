@@ -5,7 +5,9 @@ import com.media.socialmedia.DTO.PostResponseDTO;
 import com.media.socialmedia.Entity.Post;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
+import com.media.socialmedia.util.Caches;
 import com.media.socialmedia.util.PostNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PostService {
 
@@ -40,9 +43,10 @@ public class PostService {
 
     public Set<PostResponseDTO> loadPostsByUserId(long userId){
         try {
-            return cacheService.loadCachedPostsByUserId(userId).stream()
-                    .map(this::getPost).collect(Collectors.toSet());
+            return cacheService.getCacheFrom(Caches.POSTS,userId,() ->repository.findPostsIdByUserId(userId).stream()
+                    .map(this::getPost).collect(Collectors.toSet()));
         } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
             return repository.findPostsIdByUserId(userId).stream()
                     .map(this::getPost).collect(Collectors.toSet());
         }
@@ -52,8 +56,8 @@ public class PostService {
         post.setText(request.getText());
         post.setPhotoUrl(null);
         post.setUserId(userId);
+        addPostToCache(userId, post);
         repository.save(post);
-
     }
     public void create(Long userId, PostCreateRequestDTO request, MultipartFile file){
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
@@ -68,18 +72,33 @@ public class PostService {
         post.setText(request.getText());
         post.setPhotoUrl(filename);
         post.setUserId(userId);
+        addPostToCache(userId, post);
         repository.save(post);
     }
     public PostResponseDTO getPost(Long id){
         try {
-            PostResponseDTO response = cacheService.getCachedPost(id);
+            PostResponseDTO response = cacheService.getCacheFrom(Caches.POST, id,() ->{
+                Post post = repository.findById(id).orElseThrow(()-> new PostNotFoundException("Post not found!"));
+                return mapper.map(post, PostResponseDTO.class);
+            });
             response.setCountOfLike(likeService.getCountOfLike(id));
             return response;
         } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
             Post post = repository.findById(id).orElseThrow(()-> new PostNotFoundException("Post not found!"));
             PostResponseDTO response = mapper.map(post, PostResponseDTO.class);
             response.setCountOfLike(likeService.getCountOfLike(id));
             return response;
+        }
+    }
+
+    public void addPostToCache(Long key, Post newPost){
+        try {
+            Set<PostResponseDTO> response = loadPostsByUserId(key);
+            response.add(mapper.map(newPost,PostResponseDTO.class));
+            cacheService.updateInCache(Caches.POSTS,key,response);
+        } catch (RedisConnectionFailureException e) {
+            log.warn("Cannot connect to redis");
         }
     }
 

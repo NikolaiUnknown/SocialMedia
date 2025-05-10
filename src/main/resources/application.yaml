@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/SocialMedia
     username: postgres
-    password: root
+    password: postgres
   #FILE
   servlet:
     multipart:
@@ -32,7 +32,7 @@ server:
 #VARIABLES
 socialmedia:
   pictures:
-    dir: C:/pictures/ #Directory of saved pictures
+    dir: /home/nikolai/Documents/pictures/ #Directory of saved pictures
   security:
     secret: FA0YBcVmpr9CdM3SqfIdqftRjPeuLlL6W/7IcPMvVMc #256-bit secret
     accessLifetime: 180000 #JWT lifetime

@@ -38,8 +38,8 @@ public class PostService {
     }
     public Set<PostResponseDTO> loadPostsByUserId(long userId){
         try {
-            return cacheService.getCacheFrom(Caches.POSTS,userId,() ->repository.findPostsIdByUserId(userId).stream()
-                    .map(this::getPost).collect(Collectors.toSet()));
+            return cacheService.getCacheFrom(Caches.POSTS,userId,() ->repository.findPostsIdByUserId(userId)).stream()
+                    .map(this::getPost).collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
             log.warn("Cannot connect to redis");
             return repository.findPostsIdByUserId(userId).stream()

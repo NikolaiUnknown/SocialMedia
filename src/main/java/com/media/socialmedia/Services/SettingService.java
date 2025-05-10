@@ -24,6 +24,7 @@ public class SettingService {
         user.setDateOfBirthday(request.getDateOfBirthday());
         user.setCountry(request.getCountry());
         user.setProfilePicture(request.getProfilePicture());
+        user.setValid(true);
         userRepository.save(user);
     }
 

@@ -22,6 +22,9 @@ spring:
       port: 6379
       dataLifetime: 600000 #Cache data lifetime
       setsLifetime: 300000 #Cache sets lifetime
+    elasticsearch:
+      host: 127.0.0.1
+      port: 9200
 #SERVER
 server:
   port: 8081

@@ -3,6 +3,7 @@ package com.media.socialmedia.Services;
 import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.util.ProfileStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

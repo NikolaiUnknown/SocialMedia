@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
-@Slf4j
 @Service
 public class FriendService {
     private final UserRepository userRepository;
@@ -53,10 +52,8 @@ public class FriendService {
     public void inviteToFriend(long userId,long friendId){
         if (userId == friendId) throw new UsernameIsUsedException("This is you!");
         try {
-            log.warn("From service");
             User user = userService.loadUserById(userId);
             System.out.println(user.getFirstname());
-
             User friend = userService.loadUserById(friendId);
             System.out.println(friend.getFirstname());
             if (!user.getFriends().contains(friend)
@@ -66,7 +63,6 @@ public class FriendService {
                 user.getUsersInvitedByMe().add(friend);
                 userService.addToCache(Caches.INVITES,userId,user.getUsersInvitedByMe(),friendId);
                 userService.addToCache(Caches.INVITES_OF,friendId,friend.getUsersInvitingMe(),userId);
-                log.debug("addToInvite");
                 userRepository.save(user);
             }
             else throw new InviteNotFoundException("You are friends now!");

@@ -17,7 +17,6 @@ import java.util.Set;
 @Setter
 @Table(name = "posts")
 @Entity
-@EqualsAndHashCode
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -34,4 +33,16 @@ public class Post {
 
     @ManyToMany(mappedBy = "likes")
     private Set<User> likes = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return Objects.equals(id, post.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

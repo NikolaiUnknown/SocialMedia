@@ -30,8 +30,10 @@ public class SettingService {
         user.setCountry(request.getCountry());
         user.setProfilePicture(request.getProfilePicture());
         user.setValid(true);
+        UserSearchDocument document = mapper.map(user, UserSearchDocument.class);
+        document.setFullName(String.format("%s %s",user.getFirstname(), user.getLastname()));
         userRepository.save(user);
-        userSearchRepository.save(mapper.map(user, UserSearchDocument.class));
+        userSearchRepository.save(document);
     }
 
 }

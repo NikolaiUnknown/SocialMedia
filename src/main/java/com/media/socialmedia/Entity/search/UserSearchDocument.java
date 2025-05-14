@@ -20,5 +20,7 @@ public class UserSearchDocument {
     private String fullName;
     @Field(name = "profile_picture", type = FieldType.Text)
     private String profilePicture;
+    @Field(name = "is_private", type = FieldType.Boolean)
+    private boolean isPrivate;
 }
 

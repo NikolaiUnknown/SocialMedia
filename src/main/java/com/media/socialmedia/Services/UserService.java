@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,11 +48,17 @@ public class UserService implements UserDetailsService{
 
     public UserDTO loadUserDtoById(long id){
         try {
-            return cacheService.getCacheFrom(
-                    Caches.USERS,id,() -> mapper.map(loadUserById(id),UserDTO.class)
-            );
+            return cacheService.getCacheFrom(Caches.USERS,id,() -> {
+                User user = loadUserById(id);
+                UserDTO dto = mapper.map(user,UserDTO.class);
+                dto.setDateOfBirthday(new SimpleDateFormat("dd.MM.yyyy").format(user.getDateOfBirthday()));
+                return dto;
+            });
         }catch (RedisConnectionFailureException e){
-            return mapper.map(loadUserById(id),UserDTO.class);
+            User user = loadUserById(id);
+            UserDTO dto = mapper.map(user,UserDTO.class);
+            dto.setDateOfBirthday(new SimpleDateFormat("dd.MM.yyyy").format(user.getDateOfBirthday()));
+            return dto;
         }
     }
 

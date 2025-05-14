@@ -22,6 +22,8 @@ public class SettingRequestDTO {
     private String country;
     @NotNull
     private Date dateOfBirthday;
+    @NotNull
+    private Boolean accessibility;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String profilePicture;
 }

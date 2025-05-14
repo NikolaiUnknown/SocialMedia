@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchService {
@@ -18,9 +19,13 @@ public class SearchService {
 
     public Set<UserSearchDocument> searchDocuments(String query){
         if (query.contains("@")){
-            return repository.searchByEmail(query);
+            return repository.searchByEmail(query).stream()
+                    .filter(doc -> !doc.isPrivate())
+                    .collect(Collectors.toSet());
         }
-        else return repository.searchByFullName(query);
+        else return repository.searchByFullName(query).stream()
+                .filter(doc -> !doc.isPrivate())
+                .collect(Collectors.toSet());
     }
 
 }

@@ -29,6 +29,7 @@ public class TokenFilter extends OncePerRequestFilter {
         Long userId = null;
         boolean admin = false;
         boolean blocked = false;
+        String country = null;
         Claims claims;
         UserDetails userDetails;
         UsernamePasswordAuthenticationToken auth;
@@ -44,7 +45,7 @@ public class TokenFilter extends OncePerRequestFilter {
                     userId = Long.valueOf(claims.getSubject());
                     admin = claims.get("admin", Boolean.class);
                     blocked = claims.get("blocked", Boolean.class);
-
+                    country = claims.get("country",String.class);
                 } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
 
                 }
@@ -57,7 +58,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 }
 
                 if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    userDetails = new JwtUserDetails(userId,admin);
+                    userDetails = new JwtUserDetails(userId,admin,country);
                     auth = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

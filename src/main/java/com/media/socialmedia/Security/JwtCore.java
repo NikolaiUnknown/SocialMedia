@@ -28,6 +28,7 @@ public class JwtCore {
                 .subject(String.valueOf(userDetails.getUserId()))
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + lifetime))
+                .claim("country",userDetails.getUser().getCountry())
                 .claim("admin", userDetails.getAuthorities().stream()
                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))
                 .claim("blocked",userDetails.isBlocked())

@@ -2,10 +2,7 @@ package com.media.socialmedia.DTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -23,7 +20,7 @@ public class SettingRequestDTO {
     @NotNull
     private Date dateOfBirthday;
     @NotNull
-    private Boolean accessibility;
+    private Boolean isPrivate;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String profilePicture;
 }

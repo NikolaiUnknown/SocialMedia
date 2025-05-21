@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/p/users/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/posts/**").permitAll()
+                        .requestMatchers("/search/**").permitAll()
                         .anyRequest().fullyAuthenticated()
 
                 ).addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);

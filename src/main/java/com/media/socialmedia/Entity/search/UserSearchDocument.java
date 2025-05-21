@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class UserSearchDocument {
     @Field(type = FieldType.Long)
     private Long id;
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     private String email;
     @Field(name = "full_name", type = FieldType.Text)
     private String fullName;
@@ -22,5 +22,7 @@ public class UserSearchDocument {
     private String profilePicture;
     @Field(name = "is_private", type = FieldType.Boolean)
     private boolean isPrivate;
+    @Field(name = "country",type = FieldType.Keyword)
+    private String country;
 }
 

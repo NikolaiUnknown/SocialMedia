@@ -8,6 +8,7 @@ public class SocialMediaApplication {
 
     public static void main(String[] args) {
         //TODO 14.04.2025
+        //TODO 14.05.2025
         SpringApplication.run(SocialMediaApplication.class, args);
     }
 

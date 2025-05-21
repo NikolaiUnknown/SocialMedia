@@ -11,9 +11,11 @@ import java.util.List;
 public class JwtUserDetails implements UserDetails {
     private final Long userId;
     private final boolean admin;
-    public JwtUserDetails(Long userId, boolean admin) {
+    private final String country;
+    public JwtUserDetails(Long userId, boolean admin, String country) {
         this.userId = userId;
         this.admin = admin;
+        this.country = country;
     }
 
     @Override

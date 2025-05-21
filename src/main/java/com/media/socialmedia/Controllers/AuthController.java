@@ -89,12 +89,14 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String token){
+        if (token == null || token.isEmpty()){
+            return new ResponseEntity<>("Cannot refresh token",HttpStatus.UNAUTHORIZED);
+        }
         return tokenService.findByToken(token)
                 .map((refreshToken) -> {
                     try {
                         tokenService.verifyExpiration(refreshToken);
                     }catch (RefreshTokenExpireException e){
-                        System.out.println(e.getMessage());
                         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
                     }
                     return refreshToken;

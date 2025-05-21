@@ -53,9 +53,7 @@ public class FriendService {
         if (userId == friendId) throw new UsernameIsUsedException("This is you!");
         try {
             User user = userService.loadUserById(userId);
-            System.out.println(user.getFirstname());
             User friend = userService.loadUserById(friendId);
-            System.out.println(friend.getFirstname());
             if (!user.getFriends().contains(friend)
                     && !user.getFriendsOf().contains(friend)
                     && !user.getBlacklist().contains(friend)

@@ -23,8 +23,9 @@ spring:
       dataLifetime: 600000 #Cache data lifetime
       setsLifetime: 300000 #Cache sets lifetime
     elasticsearch:
-      host: 127.0.0.1
-      port: 9200
+      url: 127.0.0.1:9200
+      username: elastic
+      password: elastic
 #SERVER
 server:
   port: 8081
@@ -38,5 +39,5 @@ socialmedia:
     dir: /home/nikolai/Documents/pictures/ #Directory of saved pictures
   security:
     secret: FA0YBcVmpr9CdM3SqfIdqftRjPeuLlL6W/7IcPMvVMc #256-bit secret
-    accessLifetime: 180000 #JWT lifetime
+    accessLifetime: 900000 #JWT lifetime
     refreshLifetime: 604800000 #Refresh token lifetime

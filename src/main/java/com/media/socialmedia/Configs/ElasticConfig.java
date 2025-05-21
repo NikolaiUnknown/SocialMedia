@@ -33,7 +33,7 @@ public class ElasticConfig extends ElasticsearchConfiguration {
     public Bucket bucket(){
         Bandwidth limit = Bandwidth.builder()
                 .capacity(1)
-                .refillGreedy(1, Duration.ofSeconds(2))
+                .refillGreedy(1, Duration.ofSeconds(1))
                 .build();
         return Bucket.builder().addLimit(limit).build();
     }

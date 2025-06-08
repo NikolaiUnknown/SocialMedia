@@ -52,7 +52,6 @@ public class TokenFilter extends OncePerRequestFilter {
         Claims claims;
         UserDetails userDetails;
         UsernamePasswordAuthenticationToken auth;
-
         if (jwt != null && !jwt.isEmpty()) {
             try {
                 claims = jwtCore.claims(jwt);
@@ -60,7 +59,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 admin = claims.get("admin", Boolean.class);
                 country = claims.get("country",String.class);
             } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
-
+                System.out.println("Exception in TokenFilter");
             }
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 userDetails = new JwtUserDetails(userId,admin,country);
@@ -69,7 +68,6 @@ public class TokenFilter extends OncePerRequestFilter {
                         null,
                         userDetails.getAuthorities()
                 );
-
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

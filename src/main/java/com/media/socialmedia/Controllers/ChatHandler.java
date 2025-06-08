@@ -10,8 +10,11 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+
+import java.security.Principal;
 import java.util.Optional;
 
 @Controller
@@ -19,30 +22,25 @@ public class ChatHandler {
 
     private final SimpMessagingTemplate template;
     private final ChatService chatService;
-    private final TokenFilter tokenFilter;
     @Autowired
-    public ChatHandler(SimpMessagingTemplate template, ChatService chatService, TokenFilter tokenFilter) {
+    public ChatHandler(SimpMessagingTemplate template, ChatService chatService) {
         this.template = template;
         this.chatService = chatService;
-        this.tokenFilter = tokenFilter;
     }
 
     @MessageMapping("/chat")
-    public void message(@Payload MessageRequestDTO request){
-        tokenFilter.authJWT(request.getToken());
-        Optional<Authentication> auth = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
-        if (auth.isEmpty()) return;
-        JwtUserDetails userDetails = (JwtUserDetails) auth
-                .get()
-                .getPrincipal();
-        if (userDetails.getUserId().equals(request.getRecipientId())) return;
-        PairOfMessages messages = chatService.sendMessage(userDetails.getUserId(),request);
+    public void message(Principal principal,
+                        @Payload MessageRequestDTO request){
+        System.out.println(principal.getName());
+        Long userId = Long.valueOf(principal.getName());
+        if (userId.equals(request.getRecipientId())) return;
+        PairOfMessages messages = chatService.sendMessage(userId,request);
         template.convertAndSend(
-                "/chat/%d_%d".formatted(userDetails.getUserId(),request.getRecipientId()),
+                "/chat/%d_%d".formatted(userId,request.getRecipientId()),
                 messages.getToSender()
                 );
         template.convertAndSend(
-                "/chat/%d_%d".formatted(request.getRecipientId(),userDetails.getUserId()),
+                "/chat/%d_%d".formatted(request.getRecipientId(),userId),
                 messages.getToRecipient()
         );
     }

@@ -73,9 +73,4 @@ public class FriendController {
         }
         return ResponseEntity.ok("removed!");
     }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleException(RuntimeException e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 }

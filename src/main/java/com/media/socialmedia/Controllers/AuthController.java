@@ -2,7 +2,6 @@ package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.LoginRequestDTO;
 import com.media.socialmedia.DTO.RegisterRequestDTO;
-import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.RefreshToken;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Security.AuthDetailsImpl;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/a")
@@ -53,14 +51,6 @@ public class AuthController {
         this.tokenService = tokenService;
         this.jwtCore = jwtCore;
         this.userService = userService;
-    }
-    @GetMapping
-    public UserDTO getUser(){
-        return userService.loadUserDtoById(3);
-    }
-    @GetMapping("/friends")
-    public Set<UserDTO> getFriends(){
-        return userService.loadUserFriends(3);
     }
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {

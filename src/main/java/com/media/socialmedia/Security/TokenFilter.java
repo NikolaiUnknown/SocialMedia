@@ -26,52 +26,64 @@ public class TokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = null;
-        Long userId = null;
-        boolean admin = false;
-        boolean blocked = false;
-        String country = null;
-        Claims claims;
-        UserDetails userDetails;
-        UsernamePasswordAuthenticationToken auth;
-
         try {
             String headerAuth = request.getHeader("Authorization");
             if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
                 jwt = headerAuth.substring(7);
             }
-            if (jwt != null && !jwt.isEmpty()) {
-                try {
-                    claims = jwtCore.claims(jwt);
-                    userId = Long.valueOf(claims.getSubject());
-                    admin = claims.get("admin", Boolean.class);
-                    blocked = claims.get("blocked", Boolean.class);
-                    country = claims.get("country",String.class);
-                } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
-
-                }
-                if (blocked) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType("text/plain");
-                    response.setCharacterEncoding("UTF-8");
-                    response.getWriter().write("User is blocked!");
-                    return;
-                }
-
-                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    userDetails = new JwtUserDetails(userId,admin,country);
-                    auth = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+            if (isBlocked(jwt)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("text/plain");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("User is blocked!");
+                return;
             }
+            authJWT(jwt);
         } catch (Exception e) {
             e.printStackTrace();
         }
         filterChain.doFilter(request, response);
     }
 
+    public void authJWT(String jwt){
+        Long userId = null;
+        boolean admin = false;
+        String country = null;
+        Claims claims;
+        UserDetails userDetails;
+        UsernamePasswordAuthenticationToken auth;
+
+        if (jwt != null && !jwt.isEmpty()) {
+            try {
+                claims = jwtCore.claims(jwt);
+                userId = Long.valueOf(claims.getSubject());
+                admin = claims.get("admin", Boolean.class);
+                country = claims.get("country",String.class);
+            } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
+
+            }
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                userDetails = new JwtUserDetails(userId,admin,country);
+                auth = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+        }
+    }
+
+    private boolean isBlocked(String jwt){
+        boolean blocked = false;
+        if (jwt != null && !jwt.isEmpty()) {
+            try {
+                blocked = jwtCore.claims(jwt).get("blocked", Boolean.class);
+            } catch (SignatureException | ExpiredJwtException | MalformedJwtException _) {
+
+            }
+        }
+        return blocked;
+    }
 }

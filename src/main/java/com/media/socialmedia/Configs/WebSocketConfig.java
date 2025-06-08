@@ -19,6 +19,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import java.security.Principal;
+import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -47,14 +48,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    if (!accessor.getNativeHeader("Authorization").isEmpty()){
-                        tokenFilter.authJWT(accessor.getNativeHeader("Authorization")
-                                .getFirst().substring(7));
-                        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                    List<String> headers = accessor.getNativeHeader("Authorization");
+                    if (headers != null && !headers.isEmpty() && !headers.getFirst().isEmpty()){
+                        String jwt = headers.getFirst().substring(7);
+                        if (tokenFilter.isBlocked(jwt)) return message;
+                        tokenFilter.authJWT(jwt);
+                        JwtUserDetails userDetails = (JwtUserDetails) SecurityContextHolder.getContext()
+                                .getAuthentication().getPrincipal();
                         Principal principal = new Principal() {
                             @Override
                             public String getName() {
-                                return String.valueOf(((JwtUserDetails)auth.getPrincipal()).getUserId());
+                                return String.valueOf(userDetails.getUserId());
                             }
                         };
                         accessor.setUser(principal);

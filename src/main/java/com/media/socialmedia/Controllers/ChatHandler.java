@@ -31,7 +31,6 @@ public class ChatHandler {
     @MessageMapping("/chat")
     public void message(Principal principal,
                         @Payload MessageRequestDTO request){
-        System.out.println(principal.getName());
         Long userId = Long.valueOf(principal.getName());
         if (userId.equals(request.getRecipientId())) return;
         PairOfMessages messages = chatService.sendMessage(userId,request);

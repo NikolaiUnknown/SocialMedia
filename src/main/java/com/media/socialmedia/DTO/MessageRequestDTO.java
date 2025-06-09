@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class MessageRequestDTO {
     private Long recipientId;
     private String text;
-    private String token;
 }

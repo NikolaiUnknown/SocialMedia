@@ -9,7 +9,14 @@ import java.util.List;
 import java.util.Set;
 
 public interface MessageRepository extends JpaRepository<Message,Long> {
-    Set<Message> findMessagesBySenderIdAndRecipientId(Long senderId, Long recipientId);
+    @Modifying
+    @Query(value = """
+                SELECT * from messages
+                WHERE (sender_id=:first_id AND recipient_id=:second_id)
+                OR (recipient_id=:first_id AND sender_id=:second_id)
+                ORDER BY date_of_send;
+                """,nativeQuery = true)
+    Set<Message> findAllMessagesByUsers(Long first_id, Long second_id);
 
     @Modifying
     @Query("SELECT m FROM Message m WHERE m.recipientId= :recipientId")

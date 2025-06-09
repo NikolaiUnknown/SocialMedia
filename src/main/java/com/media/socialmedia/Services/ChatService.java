@@ -48,25 +48,16 @@ public class ChatService {
     }
 
     public Set<MessageResponseDTO> getUsersMessages(Long userId, Long id) {
-        Set<MessageResponseDTO> sendMessages= messageRepository
-                .findMessagesBySenderIdAndRecipientId(userId, id).stream()
-                .map((Message m) -> {
-                    MessageResponseDTO response = mapper.map(m, MessageResponseDTO.class);
-                    response.setType(MessageType.SEND);
-                    return response;
-                })
-                .collect(Collectors.toSet());
-        Set<MessageResponseDTO> receiveMessages= messageRepository
-                .findMessagesBySenderIdAndRecipientId(id, userId).stream()
-                .map((Message m) -> {
-                    MessageResponseDTO response = mapper.map(m, MessageResponseDTO.class);
-                    response.setType(MessageType.RECEIVE);
-                    return response;
-                })
-                .collect(Collectors.toSet());
-        TreeSet<MessageResponseDTO> answer = new TreeSet<>(sendMessages);
-        answer.addAll(receiveMessages);
-        return answer;
+        LinkedHashSet<MessageResponseDTO> messages= new LinkedHashSet<>(
+                messageRepository.findAllMessagesByUsers(userId,id).stream()
+                        .map((Message m) -> {
+                            MessageResponseDTO dto = mapper.map(m, MessageResponseDTO.class);
+                            if (m.getSenderId().equals(userId)) dto.setType(MessageType.SEND);
+                            else dto.setType(MessageType.RECEIVE);
+                            return dto;
+                        }).collect(Collectors.toSet())
+        );
+        return messages;
     }
 
     public Set<UserDTO> getUserChats(Long userId) {

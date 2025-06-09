@@ -55,7 +55,7 @@ public class ChatService {
                             if (m.getSenderId().equals(userId)) dto.setType(MessageType.SEND);
                             else dto.setType(MessageType.RECEIVE);
                             return dto;
-                        }).collect(Collectors.toSet())
+                        }).collect(Collectors.toList())
         );
         return messages;
     }

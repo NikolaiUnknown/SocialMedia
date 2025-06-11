@@ -8,7 +8,6 @@ import com.media.socialmedia.Repository.MessageRepository;
 import com.media.socialmedia.util.MessageNotFoundException;
 import com.media.socialmedia.util.MessageType;
 import com.media.socialmedia.util.PairOfMessages;
-import com.media.socialmedia.util.PairOfUserIdAndDateOfSend;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,27 +54,17 @@ public class ChatService {
                             if (m.getSenderId().equals(userId)) dto.setType(MessageType.SEND);
                             else dto.setType(MessageType.RECEIVE);
                             return dto;
-                        }).collect(Collectors.toList())
+                        }).toList()
         );
         return messages;
     }
 
     public Set<UserDTO> getUserChats(Long userId) {
-        List<PairOfUserIdAndDateOfSend> chat = new ArrayList<>();
-        Set<Message> messages1 = messageRepository.findDistinctSenderIdByRecipientId(userId);
-        for (Message m: messages1){
-            chat.add(new PairOfUserIdAndDateOfSend(m.getSenderId(),m.getDateOfSend()));
-        }
-        Set<Message> messages2 = messageRepository.findDistinctRecipientIdBySenderId(userId);
-        for (Message m: messages2){
-            chat.add(new PairOfUserIdAndDateOfSend(m.getRecipientId(),m.getDateOfSend()));
-        }
-        chat.sort(Comparator.comparing(PairOfUserIdAndDateOfSend::getDateOfSend));
-        Set<UserDTO> result = new LinkedHashSet<>();
-        for (int i = chat.size()-1; i>=0;i--){
-            result.add(userService.loadUserDtoById(chat.get(i).getUserId()));
-        }
-        return result;
+        return new LinkedHashSet<>(
+                messageRepository.findUsersLastMessages(userId).stream()
+                        .map(userService::loadUserDtoById)
+                        .toList()
+        );
     }
 
     public void deleteMessage(Long userId, Long id) {

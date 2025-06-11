@@ -17,6 +17,13 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
                 """)
     Set<Message> findAllMessagesByUsers(Long first_id, Long second_id);
 
+    @Query(value = """
+                Select case
+                when m.senderId=:id then m.recipientId
+                when m.recipientId=:id then m.senderId
+                end as user_id from Message m order by m.dateOfSend desc
+                """)
+    Set<Long> findUsersLastMessages(Long id);
     @Query("SELECT m FROM Message m WHERE m.recipientId= :recipientId")
     Set<Message> findDistinctSenderIdByRecipientId(Long recipientId);
 

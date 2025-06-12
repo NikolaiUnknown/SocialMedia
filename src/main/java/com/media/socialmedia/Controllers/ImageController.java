@@ -42,7 +42,8 @@ public class ImageController {
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<?> setProfilePicture(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestBody MultipartFile profilePicture){
+    public ResponseEntity<?> setProfilePicture(@AuthenticationPrincipal JwtUserDetails userDetails,
+                                               @RequestBody MultipartFile profilePicture){
         try {
             if (!profilePicture.isEmpty()) {
                 profileService.setProfilePicture(userDetails.getUserId(),profilePicture);

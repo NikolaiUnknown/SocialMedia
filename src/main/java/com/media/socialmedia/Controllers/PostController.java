@@ -8,15 +8,21 @@ import com.media.socialmedia.Services.LikeService;
 import com.media.socialmedia.Services.PostService;
 import com.media.socialmedia.Services.UserService;
 import com.media.socialmedia.util.PostNotFoundException;
+import com.media.socialmedia.util.UserErrorResponse;
+import com.media.socialmedia.util.UserNotCreatedException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -47,8 +53,19 @@ public class PostController {
     }
     @PostMapping(value="/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequestDTO request,
+                                   BindingResult bindingResult,
                                    @RequestPart("image")MultipartFile file,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
+        if(bindingResult.hasErrors()){
+            StringBuilder errorMsg = new StringBuilder();
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            for (FieldError error : errors){
+                errorMsg.append(error.getField())
+                        .append(" - ").append(error.getDefaultMessage())
+                        .append(";");
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,errorMsg.toString());
+        }
         if (file.isEmpty()) {
             postService.create(userDetails.getUserId(),request);
         }
@@ -58,5 +75,11 @@ public class PostController {
             return new ResponseEntity<>("Error saving file",HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.ok("success");
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<UserErrorResponse> handleException(ResponseStatusException e){
+        UserErrorResponse response = new UserErrorResponse(e.getReason());
+        return new ResponseEntity<>(response,e.getStatusCode());
     }
 }

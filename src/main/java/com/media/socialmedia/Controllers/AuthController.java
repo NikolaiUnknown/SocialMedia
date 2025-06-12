@@ -109,7 +109,7 @@ public class AuthController {
                         .append(" - ").append(error.getDefaultMessage())
                         .append(";");
             }
-            throw new UserNotCreatedException(errorMsg.toString());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,errorMsg.toString());
         }
         try {
             regService.register(registerRequest);

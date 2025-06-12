@@ -13,8 +13,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -30,7 +33,10 @@ public class ChatHandler {
 
     @MessageMapping("/chat")
     public void message(Principal principal,
-                        @Payload MessageRequestDTO request){
+                        @Payload MessageRequestDTO request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return;
+        }
         Long userId = Long.valueOf(principal.getName());
         if (userId.equals(request.getRecipientId())) return;
         PairOfMessages messages = chatService.sendMessage(userId,request);

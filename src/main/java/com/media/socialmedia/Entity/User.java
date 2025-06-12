@@ -3,8 +3,6 @@ package com.media.socialmedia.Entity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.Date;
@@ -26,20 +24,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Email
-    @NotNull
     private String email;
 
-    @NotNull
     private String password;
 
-    @NotNull
     private String firstname;
 
-    @NotNull
     private String lastname;
 
-    @NotNull
     @Column(name = "date_of_birthday")
     private Date dateOfBirthday;
 

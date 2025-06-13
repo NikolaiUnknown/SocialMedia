@@ -53,19 +53,8 @@ public class PostController {
     }
     @PostMapping(value="/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequestDTO request,
-                                   BindingResult bindingResult,
                                    @RequestPart("image")MultipartFile file,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
-        if(bindingResult.hasErrors()){
-            StringBuilder errorMsg = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors){
-                errorMsg.append(error.getField())
-                        .append(" - ").append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,errorMsg.toString());
-        }
         if (file.isEmpty()) {
             postService.create(userDetails.getUserId(),request);
         }

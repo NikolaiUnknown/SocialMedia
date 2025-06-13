@@ -1,41 +1,40 @@
 package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.MessageRequestDTO;
-import com.media.socialmedia.Security.JwtUserDetails;
-import com.media.socialmedia.Security.TokenFilter;
 import com.media.socialmedia.Services.ChatService;
 import com.media.socialmedia.util.PairOfMessages;
+import io.github.bucket4j.Bucket;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @Controller
 public class ChatHandler {
 
     private final SimpMessagingTemplate template;
     private final ChatService chatService;
+    private final Bucket bucket;
     @Autowired
-    public ChatHandler(SimpMessagingTemplate template, ChatService chatService) {
+    public ChatHandler(@Qualifier(value = "bucketWebSocket") Bucket bucket,SimpMessagingTemplate template, ChatService chatService) {
         this.template = template;
         this.chatService = chatService;
+        this.bucket = bucket;
     }
 
     @MessageMapping("/chat")
     public void message(Principal principal,
-                        @Payload MessageRequestDTO request, BindingResult bindingResult){
-        if (bindingResult.hasErrors()){
-            return;
+                        @Valid @Payload MessageRequestDTO request){
+        if (!bucket.tryConsume(1)){
+            throw new RuntimeException("Too many messages");
         }
         Long userId = Long.valueOf(principal.getName());
         if (userId.equals(request.getRecipientId())) return;
@@ -49,4 +48,9 @@ public class ChatHandler {
                 messages.getToRecipient()
         );
     }
+    @MessageExceptionHandler
+    private void handler(RuntimeException e){
+        template.convertAndSend("/topic/errors",e.getMessage());
+    }
 }
+

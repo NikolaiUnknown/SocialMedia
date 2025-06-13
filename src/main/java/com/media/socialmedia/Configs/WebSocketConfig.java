@@ -2,7 +2,10 @@ package com.media.socialmedia.Configs;
 
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Security.TokenFilter;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -18,6 +21,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import java.security.Principal;
+import java.time.Duration;
 import java.util.List;
 
 @Configuration
@@ -31,6 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config){
         config.setApplicationDestinationPrefixes("/app");
         config.enableSimpleBroker("/chat/");
+        config.enableSimpleBroker("/topic/errors");
     }
 
     @Override
@@ -66,5 +71,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 return message;
             }
         });
+    }
+    @Bean(name = "bucketWebSocket")
+    public Bucket bucket(){
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(1)
+                .refillGreedy(1, Duration.ofSeconds(2))
+                .build();
+        return Bucket.builder().addLimit(limit).build();
     }
 }

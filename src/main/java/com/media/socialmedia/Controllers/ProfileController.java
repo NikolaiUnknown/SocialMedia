@@ -78,16 +78,6 @@ public class ProfileController {
             BindingResult bindingResult,
             @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
-        if(bindingResult.hasErrors()){
-            StringBuilder errorMsg = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors){
-                errorMsg.append(error.getField())
-                        .append(" - ").append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,errorMsg.toString());
-        }
         profileService.setting(userDetails.getUserId(), settingRequest);
         return ResponseEntity.ok("success");
     }

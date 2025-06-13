@@ -35,7 +35,7 @@ public class ChatService {
                 .senderId(userId)
                 .dateOfSend(new Date())
                 .build();
-        messageRepository.save(message);
+//        messageRepository.save(message);
         PairOfMessages pair = new PairOfMessages();
         MessageResponseDTO responseToSender = mapper.map(message, MessageResponseDTO.class);
         responseToSender.setType(MessageType.SEND);

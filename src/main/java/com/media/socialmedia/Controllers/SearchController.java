@@ -6,6 +6,7 @@ import com.media.socialmedia.Services.SearchService;
 import io.github.bucket4j.Bucket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ public class SearchController {
     private final SearchService searchService;
     private final Bucket bucket;
     @Autowired
-    public SearchController(SearchService searchService, Bucket bucket) {
+    public SearchController(SearchService searchService,
+                            @Qualifier(value = "bucketSearch") Bucket bucket) {
         this.searchService = searchService;
         this.bucket = bucket;
     }

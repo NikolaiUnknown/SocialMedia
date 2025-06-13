@@ -29,7 +29,7 @@ public class ElasticConfig extends ElasticsearchConfiguration {
                 .build();
     }
 
-    @Bean
+    @Bean(name = "bucketSearch")
     public Bucket bucket(){
         Bandwidth limit = Bandwidth.builder()
                 .capacity(1)

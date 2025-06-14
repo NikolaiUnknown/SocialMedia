@@ -24,15 +24,16 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/messages/{id}")
+    @GetMapping("/messages/{id}/{page}")
     public Set<MessageResponseDTO> getMessages(@AuthenticationPrincipal JwtUserDetails userDetails,
-                                               @PathVariable Long id){
+                                               @PathVariable Long id,
+                                               @PathVariable int page
+                                               ){
         if (userDetails.getUserId().equals(id)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This is you!");
         }
-        return chatService.getUsersMessages(userDetails.getUserId(), id);
+        return chatService.getUsersMessages(userDetails.getUserId(), id, page);
     }
-
     @DeleteMapping("/messages/{id}")
     public void deleteMessage(@AuthenticationPrincipal JwtUserDetails userDetails,
                               @PathVariable Long id){

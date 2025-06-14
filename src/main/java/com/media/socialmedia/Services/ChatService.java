@@ -10,6 +10,7 @@ import com.media.socialmedia.util.MessageType;
 import com.media.socialmedia.util.PairOfMessages;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -46,15 +47,15 @@ public class ChatService {
         return pair;
     }
 
-    public Set<MessageResponseDTO> getUsersMessages(Long userId, Long id) {
+    public Set<MessageResponseDTO> getUsersMessages(Long userId, Long id, int page) {
         LinkedHashSet<MessageResponseDTO> messages= new LinkedHashSet<>(
-                messageRepository.findAllMessagesByUsers(userId,id).stream()
+                messageRepository.findAllMessagesByUsers(userId,id, PageRequest.of(page,10)).stream()
                         .map((Message m) -> {
                             MessageResponseDTO dto = mapper.map(m, MessageResponseDTO.class);
                             if (m.getSenderId().equals(userId)) dto.setType(MessageType.SEND);
                             else dto.setType(MessageType.RECEIVE);
                             return dto;
-                        }).toList()
+                        }).toList().reversed()
         );
         return messages;
     }

@@ -18,9 +18,12 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
 
     @Query(value = """
                 SELECT CASE
-                WHEN m.senderId=:id THEN m.recipientId
-                WHEN m.recipientId=:id THEN m.senderId
-                END AS user_id FROM Message m ORDER BY m.dateOfSend DESC
+                WHEN m.senderId=:id and m.recipientId is not null THEN m.recipientId
+                WHEN m.recipientId=:id and m.senderId is not null THEN m.senderId
+                END AS user_id
+                FROM Message m
+                WHERE m.senderId=:id OR m.recipientId=:id
+                ORDER BY m.dateOfSend DESC
                 """)
     Set<Long> findUsersLastMessages(Long id);
 }

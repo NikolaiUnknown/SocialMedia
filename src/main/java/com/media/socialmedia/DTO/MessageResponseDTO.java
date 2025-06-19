@@ -17,6 +17,8 @@ public class MessageResponseDTO implements Comparable<MessageResponseDTO>{
 
     private String text;
 
+    private boolean isRead;
+
     private MessageType type;
 
     @Override

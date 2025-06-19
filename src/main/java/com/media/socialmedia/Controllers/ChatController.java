@@ -5,6 +5,7 @@ import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.ChatService;
 import com.media.socialmedia.util.MessageNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
@@ -34,6 +37,7 @@ public class ChatController {
         }
         return chatService.getUsersMessages(userDetails.getUserId(), id, page);
     }
+
     @DeleteMapping("/messages/{id}")
     public void deleteMessage(@AuthenticationPrincipal JwtUserDetails userDetails,
                               @PathVariable Long id){
@@ -44,6 +48,16 @@ public class ChatController {
         }
     }
 
+    @PatchMapping("/read")
+    public void readMessage(@AuthenticationPrincipal JwtUserDetails userDetails,
+                            @RequestBody List<Long> messages){
+        System.out.println(messages);
+        try {
+            chatService.readMessages(userDetails.getUserId(),messages);
+        } catch (MessageNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
 
     @GetMapping("/users")
     public Set<UserDTO> getUsers(@AuthenticationPrincipal JwtUserDetails userDetails){

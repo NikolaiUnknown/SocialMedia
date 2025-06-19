@@ -22,4 +22,5 @@ public class Message {
     private Long recipientId;
     private Date dateOfSend;
     private String text;
+    private boolean isRead;
 }

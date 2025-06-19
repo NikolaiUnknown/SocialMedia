@@ -2,6 +2,7 @@ package com.media.socialmedia.Controllers;
 
 import com.media.socialmedia.DTO.MessageRequestDTO;
 import com.media.socialmedia.Services.ChatService;
+import com.media.socialmedia.util.MessageNotFoundException;
 import com.media.socialmedia.util.PairOfMessages;
 import io.github.bucket4j.Bucket;
 import jakarta.validation.Valid;
@@ -30,24 +31,26 @@ public class ChatHandler {
         this.bucket = bucket;
     }
 
-    @MessageMapping("/chat")
+    @MessageMapping("/chat/send")
     public void message(Principal principal,
                         @Valid @Payload MessageRequestDTO request){
         if (!bucket.tryConsume(1)){
             throw new RuntimeException("Too many messages");
         }
         Long userId = Long.valueOf(principal.getName());
-        if (userId.equals(request.getRecipientId())) return;
+        if (userId.equals(request.getRecipientId())) throw new RuntimeException("This is you!");
         PairOfMessages messages = chatService.sendMessage(userId,request);
         template.convertAndSend(
-                "/chat/%d_%d".formatted(userId,request.getRecipientId()),
+                "/topic/chat/%d_%d".formatted(userId,request.getRecipientId()),
                 messages.getToSender()
                 );
         template.convertAndSend(
-                "/chat/%d_%d".formatted(request.getRecipientId(),userId),
+                "/topic/chat/%d_%d".formatted(request.getRecipientId(),userId),
                 messages.getToRecipient()
         );
     }
+
+
     @MessageExceptionHandler
     private void handler(RuntimeException e){
         template.convertAndSend("/topic/errors",e.getMessage());

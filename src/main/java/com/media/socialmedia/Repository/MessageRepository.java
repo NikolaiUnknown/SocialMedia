@@ -1,29 +1,20 @@
 package com.media.socialmedia.Repository;
 
+import com.media.socialmedia.Entity.Chat;
 import com.media.socialmedia.Entity.Message;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
 import java.util.Set;
+import java.util.UUID;
 
+@Repository
+@Transactional
 public interface MessageRepository extends JpaRepository<Message,Long> {
-    @Query(value = """
-                SELECT m from Message m
-                WHERE (m.senderId=:first_id AND m.recipientId=:second_id)
-                OR (m.recipientId=:first_id AND m.senderId=:second_id)
-                ORDER BY m.dateOfSend DESC
-                """)
-    Page<Message> findAllMessagesByUsers(Long first_id, Long second_id, Pageable pageable);
-
-    @Query(value = """
-                SELECT CASE
-                WHEN m.senderId=:id and m.recipientId is not null THEN m.recipientId
-                WHEN m.recipientId=:id and m.senderId is not null THEN m.senderId
-                END AS user_id
-                FROM Message m
-                WHERE m.senderId=:id OR m.recipientId=:id
-                ORDER BY m.dateOfSend DESC
-                """)
-    Set<Long> findUsersLastMessages(Long id);
+    Page<Message> findMessagesByChatIdOrderByDateOfSendDesc(UUID chatId, Pageable pageable);
+    void deleteMessagesByChatId(UUID chat_id);
 }

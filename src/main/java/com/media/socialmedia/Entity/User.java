@@ -84,6 +84,9 @@ public class User {
     )
     private Set<User> blacklist = new HashSet<>();
 
+    @ManyToMany(mappedBy = "members")
+    private Set<Chat> chats = new HashSet<>();
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

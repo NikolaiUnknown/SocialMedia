@@ -18,8 +18,12 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long senderId;
-    private Long recipientId;
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private User sender;
+    @ManyToOne
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
     private Date dateOfSend;
     private String text;
     private boolean isRead;

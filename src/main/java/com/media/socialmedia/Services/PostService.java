@@ -38,7 +38,7 @@ public class PostService {
     }
     public Set<PostResponseDTO> loadPostsByUserId(long userId){
         try {
-            return cacheService.getCacheFrom(Caches.POSTS,userId,() ->repository.findPostsIdByUserId(userId)).stream()
+            return cacheService.getCacheFrom(Caches.POSTS, userId,() -> repository.findPostsIdByUserId(userId)).stream()
                     .map(this::getPost).collect(Collectors.toSet());
         } catch (RedisConnectionFailureException e) {
             log.warn("Cannot connect to redis");
@@ -51,8 +51,8 @@ public class PostService {
         post.setText(request.getText());
         post.setPhotoUrl(null);
         post.setUserId(userId);
-        addPostToCache(userId, post);
         repository.save(post);
+        addPostToCache(userId, post);
     }
     public void create(Long userId, PostCreateRequestDTO request, MultipartFile file){
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
@@ -67,8 +67,8 @@ public class PostService {
         post.setText(request.getText());
         post.setPhotoUrl(filename);
         post.setUserId(userId);
-        addPostToCache(userId, post);
         repository.save(post);
+        addPostToCache(userId, post);
     }
     public PostResponseDTO getPost(Long id){
         try {
@@ -91,7 +91,7 @@ public class PostService {
         try {
             Set<PostResponseDTO> response = loadPostsByUserId(key);
             response.add(mapper.map(newPost,PostResponseDTO.class));
-            cacheService.updateInCache(Caches.POSTS,key,response);
+            cacheService.updateInCache(Caches.POSTS,key,response.stream().map(PostResponseDTO::getId).collect(Collectors.toSet()));
         } catch (RedisConnectionFailureException e) {
             log.warn("Cannot connect to redis");
         }

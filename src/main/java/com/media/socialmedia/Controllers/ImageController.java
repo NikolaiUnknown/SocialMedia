@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/images")
@@ -41,11 +40,11 @@ public class ImageController {
         return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
     }
 
-    @PostMapping("/profile")
+    @PatchMapping(value="/profile", consumes= {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> setProfilePicture(@AuthenticationPrincipal JwtUserDetails userDetails,
                                                @RequestBody MultipartFile profilePicture){
         try {
-            if (!profilePicture.isEmpty()) {
+            if (profilePicture != null && !profilePicture.isEmpty()) {
                 profileService.setProfilePicture(userDetails.getUserId(),profilePicture);
             }
             else return new ResponseEntity<>("Image not found", HttpStatus.NOT_FOUND);

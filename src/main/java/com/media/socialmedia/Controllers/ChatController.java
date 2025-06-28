@@ -7,11 +7,11 @@ import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.ChatService;
 import com.media.socialmedia.util.ChatForbiddenException;
 import com.media.socialmedia.util.MessageNotFoundException;
-import com.media.socialmedia.util.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,10 +35,11 @@ public class ChatController {
         try {
             Chat chat = chatService.createChat(userDetails.getUserId(),id);
             return new ResponseEntity<>(chat, HttpStatus.CREATED);
-        } catch (UserNotCreatedException e) {
+        } catch (UsernameNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
     }
+
     @DeleteMapping("/{id}")
     public void deleteChat(@AuthenticationPrincipal JwtUserDetails userDetails,
                            @PathVariable("id") UUID chatId){
@@ -50,19 +51,21 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
+
     @GetMapping("/messages/{id}/{page}")
-    public Set<MessageResponseDTO> getMessages(@AuthenticationPrincipal JwtUserDetails userDetails,
+    public ResponseEntity<Set<MessageResponseDTO>> getMessages(@AuthenticationPrincipal JwtUserDetails userDetails,
                                                @PathVariable("id") UUID chatId,
                                                @PathVariable int page
                                                ){
         try {
-            return chatService.getChatHistory(userDetails.getUserId(),chatId, page);
+            return ResponseEntity.ok(chatService.getChatHistory(userDetails.getUserId(),chatId, page));
         } catch (MessageNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (ChatForbiddenException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
+
     @DeleteMapping("/messages/{id}")
     public void deleteMessage(@AuthenticationPrincipal JwtUserDetails userDetails,
                               @PathVariable Long id){
@@ -72,6 +75,7 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
     }
+
     @PatchMapping("/read")
     public void readMessage(@AuthenticationPrincipal JwtUserDetails userDetails,
                             @RequestBody List<Long> messages){
@@ -83,17 +87,19 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
+
     @GetMapping("/user")
-    public UserDTO getUserByChat(@RequestParam("id") UUID id, @AuthenticationPrincipal JwtUserDetails userDetails){
+    public ResponseEntity<UserDTO> getUserByChat(@RequestParam("id") UUID id, @AuthenticationPrincipal JwtUserDetails userDetails){
         try {
-            return chatService.getUserByChat(userDetails.getUserId(),id);
-        } catch (MessageNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+            return ResponseEntity.ok(chatService.getUserByChat(userDetails.getUserId(),id));
+        } catch (ChatForbiddenException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
         }
     }
+
     @GetMapping // /api/chats
-    public Set<UUID> getChats(@AuthenticationPrincipal JwtUserDetails userDetails){
-        return chatService.getUserChats(userDetails.getUserId());
+    public ResponseEntity<Set<UUID>> getChats(@AuthenticationPrincipal JwtUserDetails userDetails){
+        return ResponseEntity.ok(chatService.getUserChats(userDetails.getUserId()));
     }
 
     @ExceptionHandler

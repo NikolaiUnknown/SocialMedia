@@ -17,7 +17,7 @@ public class UserDTO {
 
     private String lastname;
 
-    private String dateOfBirthday;
+    private String dateOfBirth;
 
     private String profilePicture;
 

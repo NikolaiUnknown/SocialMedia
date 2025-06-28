@@ -18,29 +18,20 @@ import java.util.Set;
 @Transactional
 public interface UserRepository extends JpaRepository<User,Long> {
     User findUserByEmail(String email);
-    @Modifying
-    @Query("update User u set u.firstname = :firstname, u.lastname = :lastname, u.dateOfBirthday = :dateOfBirthday, u.country = :country, u.profilePicture = :profilePicture, u.isValid = true where u.id = :userId")
-    void setUserInfoById(String firstname, String lastname, Date dateOfBirthday, String country, String profilePicture, Long userId);
-
     Optional<User> findUserById(Long id);
 
-    @Modifying
     @Query("SELECT f.id FROM User u JOIN u.friends f WHERE u.id = :id")
     Set<Long> findFriendsById(Long id);
 
-    @Modifying
     @Query(value = "SELECT f.id FROM User u JOIN u.friendsOf f WHERE u.id= :id")
     Set<Long> findFriendsOfById(Long id);
 
-    @Modifying
     @Query(value = "SELECT b.id FROM User u JOIN u.blacklist b WHERE u.id= :id")
     Set<Long> findBlacklistById(Long id);
 
-    @Modifying
     @Query(value = "SELECT i.id FROM User u JOIN u.usersInvitedByMe i WHERE u.id= :id")
     Set<Long> findInvitesById(Long id);
 
-    @Modifying
     @Query(value = "SELECT i.id from User u JOIN u.usersInvitingMe i WHERE u.id= :id")
     Set<Long> findInvitesOfById(Long id);
 }

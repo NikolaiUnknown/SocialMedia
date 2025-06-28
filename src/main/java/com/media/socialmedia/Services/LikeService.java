@@ -5,6 +5,7 @@ import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.PostRepository;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.Caches;
+import com.media.socialmedia.util.PostNotFoundException;
 import com.media.socialmedia.util.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,7 +28,7 @@ public class LikeService {
     public long like(long userId, long postId){
         try {
             User user = userService.loadUserById(userId);
-            Post post = postRepository.findById(postId).orElseThrow(() -> new UserNotCreatedException("Post not found!"));
+            Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found!"));
             if (user.getLikes().contains(post)){
                 user.getLikes().remove(post);
 
@@ -43,6 +44,6 @@ public class LikeService {
         }
     }
     public long getCountOfLike(Long postId){
-        return postRepository.getPostById(postId).getLikes().size();
+        return postRepository.countPost_LikesById(postId);
     }
 }

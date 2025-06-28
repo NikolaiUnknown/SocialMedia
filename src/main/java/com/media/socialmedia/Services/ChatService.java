@@ -134,6 +134,9 @@ public class ChatService {
     }
 
     public UserDTO getUserByChat(Long userId,UUID id) {
+        if (!isUserMember(userId,id)){
+            throw new ChatForbiddenException("Access denied!");
+        }
         return userService.loadUserDtoById(chatRepository.findOtherMember(userId,id));
     }
     @Transactional

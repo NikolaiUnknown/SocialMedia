@@ -4,7 +4,6 @@ import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.Caches;
-import com.media.socialmedia.util.InviteNotFoundException;
 import com.media.socialmedia.util.ProfileStatus;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class BlackListService {
             if (isInBlackList(userId,id)) throw new UsernameIsUsedException("User is Already in blacklist");
             ProfileStatus status = profileService.getStatus(userId,id);
             switch (status){
-                case ProfileStatus.FRIENDS: throw new InviteNotFoundException("You are friends now!");
+                case ProfileStatus.FRIENDS: throw new UsernameIsUsedException("You are friends now!");
                 case ProfileStatus.INVITE: {
                     user1.getUsersInvitedByMe().remove(user2);
                     userService.removeFromCache(Caches.INVITES,userId,user1.getUsersInvitedByMe(),id);

@@ -30,7 +30,7 @@ public class RegService {
         }
         user.setFirstname("null");
         user.setLastname("null");
-        user.setDateOfBirthday(new Date());
+        user.setDateOfBirth(new Date());
         user.setValid(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);

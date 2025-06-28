@@ -1,0 +1,1250 @@
+openapi: 3.1.0
+info:
+  title: SocialMedia OpenApi Definition
+  description: Open Api for SocialMedia project
+  version: '1'
+servers:
+  - url: http://127.0.0.1:8081/api
+    description: Generated server url
+tags:
+  - name: Authentication
+  - name: Profile Settings
+  - name: Admin Functions
+  - name: Image API
+  - name: Posts
+  - name: Friends
+  - name: Black List
+  - name: Search
+  - name: Chat & Message API
+paths:
+  /p/setting:
+    put:
+      tags:
+        - Profile Settings
+      summary: Set user profile information
+      description: Set user's First name, Last name, country, Date of Birth and Accessibility. Before this operation the account is considered invalid.
+      operationId: setting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: success
+        '400':
+          description: BAD_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserErrorResponse'
+      security:
+        - bearerAuth: []
+  /posts/like/{id}:
+    post:
+      tags:
+        - Posts
+      summary: Like post (id)
+      description: Returns the new value of likes
+      operationId: like
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: 1
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Post not found!
+      security:
+        - bearerAuth: []
+  /posts/:
+    post:
+      tags:
+        - Posts
+      summary: Create a new post
+      description: Create a new post with text and image (image may be null)
+      operationId: create
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+              required:
+                - image
+                - text
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: success
+        '500':
+          description: INTERNAL_SERVER_ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Error saving file
+      security:
+        - bearerAuth: []
+  /friends/invite:
+    post:
+      tags:
+        - Friends
+      summary: Invite user to friends
+      operationId: invite
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: invited!
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: This is you!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+  /chats/{id}:
+    post:
+      tags:
+        - Chat & Message API
+      summary: Create a new chat with user (id)
+      operationId: createChat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '201':
+          description: CREATED
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - Chat & Message API
+      summary: Delete chat (id)
+      operationId: deleteChat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: FORBIDDEN
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Access denied!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Chat not found!
+      security:
+        - bearerAuth: []
+  /blacklist:
+    get:
+      tags:
+        - Black List
+      summary: Get blacklist of an Authenticated user
+      operationId: allBlacklistedUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+                uniqueItems: true
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - Black List
+      summary: Add user (id) to blacklist
+      operationId: addToBlackList
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: added!
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: This is you!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - Black List
+      summary: Remove user(id) from blacklist
+      operationId: removeFromBlackList
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: removed!
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User is not in blacklist
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+  /a/register:
+    post:
+      tags:
+        - Authentication
+      summary: Sign Up in the System
+      description: Create a new account in the System
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: Bearer token for authentication
+        '400':
+          description: BAD_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserErrorResponse'
+  /a/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh expired token
+      description: Refresh expired Jwt token via Refresh token from cookie
+      operationId: refreshToken
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: Bearer token for authentication
+        '401':
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserErrorResponse'
+  /a/login:
+    post:
+      tags:
+        - Authentication
+      summary: Sign In to the System
+      description: Get a Bearer token via Authentication
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: Bearer token for authentication
+        '401':
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserErrorResponse'
+  /images/profile:
+    patch:
+      tags:
+        - Image API
+      summary: Set profile picture
+      operationId: setProfilePicture
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profilePicture:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: success
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Image not found
+        '500':
+          description: INTERNAL_SERVER_ERROR
+          content:
+            text/plain:
+              schema:
+                type: object
+      security:
+        - bearerAuth: []
+  /friends/deny:
+    patch:
+      tags:
+        - Friends
+      summary: Deny invite
+      description: Deny a user's invitation (yours or the inviter's)
+      operationId: deny
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: denied!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Invite not found!
+      security:
+        - bearerAuth: []
+  /friends/accept:
+    patch:
+      tags:
+        - Friends
+      summary: Accept user to friends
+      operationId: accept
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: accepted!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Invite not found!
+      security:
+        - bearerAuth: []
+  /chats/read:
+    patch:
+      tags:
+        - Chat & Message API
+      summary: Read messages with ids(body)
+      description: Change message status "read" to true
+      operationId: readMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+        required: true
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: FORBIDDEN
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Access denied!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Message not found!
+      security:
+        - bearerAuth: []
+  /admin/users/unban/{id}:
+    patch:
+      tags:
+        - Admin Functions
+      summary: Unblock user
+      operationId: unban
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: User 1 is unbanned
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: This user is not banned
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+  /admin/users/ban/{id}:
+    patch:
+      tags:
+        - Admin Functions
+      summary: Block user
+      description: Block user (id) if the user has violated the rules.
+      operationId: ban
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: User 1 is banned
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: This user is already banned
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+  /admin/assign/{id}:
+    patch:
+      tags:
+        - Admin Functions
+      summary: Assign user as administrator
+      operationId: assign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: User 1 added to admins
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: This is you!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User not found!
+      security:
+        - bearerAuth: []
+  /search/{page}:
+    get:
+      tags:
+        - Search
+      summary: Find 10 most relevant users by page
+      operationId: searchDocuments
+      parameters:
+        - name: page
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSearchDocument'
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Too large request
+        '429':
+          description: TOO_MANY_REQUESTS
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Too many request, please wait...
+      security:
+        - bearerAuth: []
+  /search/fast:
+    get:
+      tags:
+        - Search
+      summary: Find 5 most relevant users
+      description: Search users by query without pagination
+      operationId: fastSearchDocuments
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSearchDocument'
+        '400':
+          description: BAD_REQUEST
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Too large request
+        '429':
+          description: TOO_MANY_REQUESTS
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Too many request, please wait...
+      security:
+        - bearerAuth: []
+  /posts/{id}:
+    get:
+      tags:
+        - Posts
+      summary: Get post by id
+      operationId: post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PostResponseDTO'
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Post not found!
+  /posts/users/{id}:
+    get:
+      tags:
+        - Posts
+      summary: Get all posts by userId
+      operationId: getAllPostsByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostResponseDTO'
+                uniqueItems: true
+  /p/users/{id}:
+    get:
+      tags:
+        - Profile Settings
+      summary: Get user data by id
+      description: Get UserDto by user Id. If user is private and not your friend, private fields will be null.
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: BAD_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserErrorResponse'
+  /p/status:
+    get:
+      tags:
+        - Profile Settings
+      summary: Status between users
+      description: Get the status between the authorized user and the specified user (id). Status could be BLACKLIST, BLACKLISTED, FRIENDS, INVITE, INVITED, UNKNOWN, BLOCKED
+      operationId: getStatus
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: INVITE
+        '400':
+          description: BAD_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserErrorResponse'
+      security:
+        - bearerAuth: []
+  /p/me:
+    get:
+      tags:
+        - Profile Settings
+      summary: Get id of the Authenticated user
+      operationId: me
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+                example: 1
+      security:
+        - bearerAuth: []
+  /images/{filename}:
+    get:
+      tags:
+        - Image API
+      summary: Get image by filename
+      operationId: getImage
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: NOT FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Image not found!
+  /friends:
+    get:
+      tags:
+        - Friends
+      summary: Get all friends of an Authenticated user
+      operationId: getAll
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+                uniqueItems: true
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - Friends
+      summary: Remove user from friends
+      operationId: remove
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: removed!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: TestFirstname is not your friend!
+      security:
+        - bearerAuth: []
+  /friends/invites:
+    get:
+      tags:
+        - Friends
+      summary: Get users I've invited as friends
+      operationId: getInvites
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+                uniqueItems: true
+      security:
+        - bearerAuth: []
+  /friends/invited:
+    get:
+      tags:
+        - Friends
+      summary: Get users who invited me as friends
+      operationId: getInvited
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+                uniqueItems: true
+      security:
+        - bearerAuth: []
+  /chats:
+    get:
+      tags:
+        - Chat & Message API
+      summary: Get all chats of Authenticated user
+      operationId: getChats
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                uniqueItems: true
+      security:
+        - bearerAuth: []
+  /chats/user:
+    get:
+      tags:
+        - Chat & Message API
+      summary: Get companion
+      description: Return other chat member
+      operationId: getUserByChat
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '403':
+          description: FORBIDDEN
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Access denied!
+      security:
+        - bearerAuth: []
+  /chats/messages/{id}/{page}:
+    get:
+      tags:
+        - Chat & Message API
+      summary: Get sorted messages from chat (id) with pagination
+      description: Messages are sent via WebSocket
+      operationId: getMessages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponseDTO'
+        '403':
+          description: FORBIDDEN
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Access denied!
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Chat not found!
+      security:
+        - bearerAuth: []
+  /admin/check:
+    get:
+      tags:
+        - Admin Functions
+      summary: Check administrator access
+      description: Returns 200(OK) if user is administrator, or 401(UNAUTHORIZED) if user isn't administrator
+      operationId: accessGranted
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: boolean
+                example: true
+        '401':
+          description: UNAUTHORIZED
+      security:
+        - bearerAuth: []
+  /chats/messages/{id}:
+    delete:
+      tags:
+        - Chat & Message API
+      summary: Delete message (id) from chat
+      operationId: deleteMessage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Message not found!
+      security:
+        - bearerAuth: []
+  /admin/posts/{id}:
+    delete:
+      tags:
+        - Admin Functions
+      summary: Delete post
+      description: Delete post (id) if it has violated the rules.
+      operationId: deletePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: Post 1 is deleted
+        '404':
+          description: NOT_FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Post not found!
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    UserErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Error message
+    SettingRequestDTO:
+      type: object
+      properties:
+        firstname:
+          type: string
+          example: TestFirstName
+          minLength: 1
+        lastname:
+          type: string
+          example: TestLastName
+          minLength: 1
+        country:
+          type: string
+          example: TestCountry
+        dateOfBirth:
+          type: string
+          format: date-time
+        isPrivate:
+          type: boolean
+          example: false
+      required:
+        - country
+        - dateOfBirth
+        - firstname
+        - lastname
+    Chat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        dateOfLastSend:
+          type: string
+          format: date-time
+    RegisterRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+        password:
+          type: string
+          example: 12345678
+    LoginRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+        password:
+          type: string
+          example: 12345678
+      required:
+        - email
+        - password
+    UserSearchDocument:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        fullName:
+          type: string
+        profilePicture:
+          type: string
+        country:
+          type: string
+        private:
+          type: boolean
+    PostResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        photoUrl:
+          type: string
+        text:
+          type: string
+        countOfLike:
+          type: integer
+          format: int64
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        dateOfBirth:
+          type: string
+        profilePicture:
+          type: string
+        country:
+          type: string
+        private:
+          type: boolean
+        valid:
+          type: boolean
+        blocked:
+          type: boolean
+    MessageResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        senderId:
+          type: integer
+          format: int64
+        dateOfSend:
+          type: string
+          format: date-time
+        text:
+          type: string
+        read:
+          type: boolean
+  securitySchemes:
+    bearerAuth:
+      type: http
+      in: header
+      scheme: bearer
+      bearerFormat: JWT

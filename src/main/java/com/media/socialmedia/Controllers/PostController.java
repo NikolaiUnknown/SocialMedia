@@ -1,28 +1,20 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.PostCreateRequestDTO;
 import com.media.socialmedia.DTO.PostResponseDTO;
-import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.LikeService;
 import com.media.socialmedia.Services.PostService;
-import com.media.socialmedia.Services.UserService;
 import com.media.socialmedia.util.PostNotFoundException;
-import com.media.socialmedia.util.UserErrorResponse;
-import com.media.socialmedia.util.UserNotCreatedException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -33,42 +25,48 @@ public class PostController {
     private final LikeService likeService;
 
     @Autowired
-    public PostController(PostService postService, LikeService likeService, UserService userService) {
+    public PostController(PostService postService, LikeService likeService) {
         this.postService = postService;
         this.likeService = likeService;
     }
 
-    @GetMapping("/{id}")
-    public PostResponseDTO post(@PathVariable("id") Long id){
-        return postService.getPost(id);
-    }
-    @GetMapping("/all/{id}")
+    @GetMapping("/users/{id}")
     public Set<PostResponseDTO> getAllPostsByUser(@PathVariable("id") long userId){
         return postService.loadPostsByUserId(userId);
     }
-    @PostMapping("/like/{id}")
-    public ResponseEntity<?> like(@PathVariable("id") Long id,
-                                  @AuthenticationPrincipal JwtUserDetails userDetails){
-        return ResponseEntity.ok(likeService.like(userDetails.getUserId(), id));
-    }
-    @PostMapping(value="/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> create(@RequestPart("text") @Valid PostCreateRequestDTO request,
-                                   @RequestPart("image")MultipartFile file,
-                                    @AuthenticationPrincipal JwtUserDetails userDetails){
-        if (file.isEmpty()) {
-            postService.create(userDetails.getUserId(),request);
-        }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> post(@PathVariable("id") Long id){
         try {
-            postService.create(userDetails.getUserId(),request,file);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("Error saving file",HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(postService.getPost(id));
+        } catch (PostNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+    }
+    @PostMapping(value="/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> create(@RequestPart("text") @Valid String text,
+                                    @RequestPart("image")MultipartFile file,
+                                    @AuthenticationPrincipal JwtUserDetails userDetails){
+        if (file == null || file.isEmpty()) {
+            postService.create(userDetails.getUserId(),text);
+        }
+        else {
+            try {
+                postService.create(userDetails.getUserId(),text,file);
+            } catch (RuntimeException e) {
+                return new ResponseEntity<>("Error saving file",HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
         return ResponseEntity.ok("success");
     }
 
-    @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleException(ResponseStatusException e){
-        UserErrorResponse response = new UserErrorResponse(e.getReason());
-        return new ResponseEntity<>(response,e.getStatusCode());
+    @PostMapping("/like/{id}")
+    public ResponseEntity<?> like(@PathVariable("id") Long id,
+                                  @AuthenticationPrincipal JwtUserDetails userDetails){
+        try {
+            return ResponseEntity.ok(likeService.like(userDetails.getUserId(), id));
+        } catch (PostNotFoundException | UsernameNotFoundException e) {
+           return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
     }
 }

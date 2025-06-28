@@ -17,6 +17,7 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private Date dateOfLastSend;
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_chats",

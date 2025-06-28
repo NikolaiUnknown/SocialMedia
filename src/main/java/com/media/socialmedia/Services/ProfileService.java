@@ -9,18 +9,15 @@ import com.media.socialmedia.Repository.search.UserSearchRepository;
 import com.media.socialmedia.util.Caches;
 import com.media.socialmedia.util.FileException;
 import com.media.socialmedia.util.ProfileStatus;
-import lombok.extern.slf4j.Slf4j;
+import com.media.socialmedia.util.UsernameIsUsedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
@@ -44,6 +41,9 @@ public class ProfileService {
     }
 
     public ProfileStatus getStatus(long userId,long friendId){
+        if(userId == friendId){
+            throw new UsernameIsUsedException("This is you!");
+        }
         try {
             UserDTO user = userService.loadUserDtoById(userId);
             UserDTO friend = userService.loadUserDtoById(friendId);
@@ -72,7 +72,7 @@ public class ProfileService {
     public UserDTO changeCredentials(UserDTO response){
         response.setEmail(null);
         response.setCountry(null);
-        response.setDateOfBirthday(null);
+        response.setDateOfBirth(null);
         return response;
     }
 
@@ -103,7 +103,7 @@ public class ProfileService {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
-        user.setDateOfBirthday(request.getDateOfBirthday());
+        user.setDateOfBirth(request.getDateOfBirth());
         user.setCountry(request.getCountry());
         if (user.getProfilePicture() == null){
             user.setProfilePicture("default-avatar.png");

@@ -1,6 +1,5 @@
 package com.media.socialmedia.DTO;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -20,10 +19,7 @@ public class SettingRequestDTO {
     private String lastname;
     @NotNull(message = "country isn't choose!")
     private String country;
-    @NotNull
-    private Date dateOfBirthday;
-
+    @NotNull(message = "date is null!")
+    private Date dateOfBirth;
     private Boolean isPrivate;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String profilePicture;
 }

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequestDTO {
-    @Email(message = "is no email!")
+    @Email(message = "this is not email!")
     private String email;
     @Min(value = 6,message = "password must be greater than 6!")
     private String password;

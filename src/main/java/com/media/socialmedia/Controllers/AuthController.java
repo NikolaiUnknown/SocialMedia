@@ -11,7 +11,6 @@ import com.media.socialmedia.Services.UserService;
 import com.media.socialmedia.util.RefreshTokenExpireException;
 import com.media.socialmedia.util.UserErrorResponse;
 import com.media.socialmedia.Security.JwtCore;
-import com.media.socialmedia.util.UserNotCreatedException;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,7 +79,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String token){
         if (token == null || token.isEmpty()){
-            return new ResponseEntity<>("Cannot refresh token",HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Cannot refresh token");
         }
         return tokenService.findByToken(token)
                 .map((refreshToken) -> {

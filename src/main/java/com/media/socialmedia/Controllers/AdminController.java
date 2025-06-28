@@ -1,6 +1,5 @@
 package com.media.socialmedia.Controllers;
 
-import com.media.socialmedia.DTO.UserDTO;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.AdminService;
 import com.media.socialmedia.util.PostNotFoundException;
@@ -13,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
 
 @RestController
 @RequestMapping("/admin")
@@ -31,22 +29,24 @@ public class AdminController {
         return true;
     }
 
-    @PostMapping("/assign/{id}")
+    @PatchMapping("/assign/{id}")
     public ResponseEntity<?> assign(@AuthenticationPrincipal JwtUserDetails userDetails
                                   , @PathVariable("id") Long id){
         if (userDetails.getUserId().equals(id)){
-            return new ResponseEntity<>("This is you",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("This is you!",HttpStatus.BAD_REQUEST);
         }
         try {
             adminService.assign(id);
-        }
-        catch (UsernameNotFoundException|UsernameIsUsedException e){
+        } catch (UsernameIsUsedException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(String.format("User %d added to admins",id));
     }
 
-    @PostMapping("/posts/delete/{id}")
+
+    @DeleteMapping("/posts/{id}")
     public ResponseEntity<?> deletePost(@PathVariable("id") Long id){
         try {
             adminService.deletePost(id);
@@ -57,24 +57,27 @@ public class AdminController {
         return ResponseEntity.ok(String.format("Post %d is deleted",id));
     }
 
-    @PostMapping("/users/ban/{id}")
+    @PatchMapping("/users/ban/{id}")
     public ResponseEntity<?> ban(@PathVariable("id") Long id){
         try {
             adminService.ban(id);
-        }
-        catch (UsernameNotFoundException|UsernameIsUsedException e){
+        }catch (UsernameIsUsedException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }catch (UsernameNotFoundException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(String.format("User %d is banned",id));
     }
 
-    @PostMapping("/users/unban/{id}")
+
+    @PatchMapping("/users/unban/{id}")
     public ResponseEntity<?> unban(@PathVariable("id") Long id){
         try {
             adminService.unban(id);
-        }
-        catch (UsernameNotFoundException|UsernameIsUsedException e){
+        } catch (UsernameIsUsedException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }catch (UsernameNotFoundException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(String.format("User %d is unbanned",id));
     }

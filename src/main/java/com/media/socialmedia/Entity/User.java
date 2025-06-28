@@ -32,8 +32,8 @@ public class User {
 
     private String lastname;
 
-    @Column(name = "date_of_birthday")
-    private Date dateOfBirthday;
+    @Column(name = "date_of_birth")
+    private Date dateOfBirth;
 
     @Column(name = "profile_picture")
     private String profilePicture;

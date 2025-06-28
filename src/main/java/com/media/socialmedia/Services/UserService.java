@@ -51,13 +51,13 @@ public class UserService implements UserDetailsService{
             return cacheService.getCacheFrom(Caches.USERS,id,() -> {
                 User user = loadUserById(id);
                 UserDTO dto = mapper.map(user,UserDTO.class);
-                dto.setDateOfBirthday(new SimpleDateFormat("dd.MM.yyyy").format(user.getDateOfBirthday()));
+                dto.setDateOfBirth(new SimpleDateFormat("dd.MM.yyyy").format(user.getDateOfBirth()));
                 return dto;
             });
         }catch (RedisConnectionFailureException e){
             User user = loadUserById(id);
             UserDTO dto = mapper.map(user,UserDTO.class);
-            dto.setDateOfBirthday(new SimpleDateFormat("dd.MM.yyyy").format(user.getDateOfBirthday()));
+            dto.setDateOfBirth(new SimpleDateFormat("dd.MM.yyyy").format(user.getDateOfBirth()));
             return dto;
         }
     }

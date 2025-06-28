@@ -33,6 +33,13 @@ server:
     context-path: /api
   error:
     include-message: always
+#SPECIFICATION
+springdoc:
+  swagger-ui:
+    url: /api-docs.yaml
+  api-docs:
+    path: /__ignore__
+  paths-to-match: []
 #VARIABLES
 socialmedia:
   pictures:
@@ -41,3 +48,4 @@ socialmedia:
     secret: FA0YBcVmpr9CdM3SqfIdqftRjPeuLlL6W/7IcPMvVMc #256-bit secret
     accessLifetime: 900000 #JWT lifetime
     refreshLifetime: 604800000 #Refresh token lifetime
+

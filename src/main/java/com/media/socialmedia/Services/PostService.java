@@ -1,6 +1,5 @@
 package com.media.socialmedia.Services;
 
-import com.media.socialmedia.DTO.PostCreateRequestDTO;
 import com.media.socialmedia.DTO.PostResponseDTO;
 import com.media.socialmedia.Entity.Post;
 import com.media.socialmedia.Repository.PostRepository;
@@ -46,15 +45,15 @@ public class PostService {
                     .map(this::getPost).collect(Collectors.toSet());
         }
     }
-    public void create(Long userId, PostCreateRequestDTO request){
+    public void create(Long userId, String text){
         Post post = new Post();
-        post.setText(request.getText());
+        post.setText(text);
         post.setPhotoUrl(null);
         post.setUserId(userId);
         repository.save(post);
         addPostToCache(userId, post);
     }
-    public void create(Long userId, PostCreateRequestDTO request, MultipartFile file){
+    public void create(Long userId, String text, MultipartFile file){
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
         String filename = UUID.randomUUID() + extension;
         try {
@@ -64,7 +63,7 @@ public class PostService {
 
         }
         Post post = new Post();
-        post.setText(request.getText());
+        post.setText(text);
         post.setPhotoUrl(filename);
         post.setUserId(userId);
         repository.save(post);

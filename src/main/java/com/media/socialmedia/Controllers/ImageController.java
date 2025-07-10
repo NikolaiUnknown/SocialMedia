@@ -33,7 +33,7 @@ public class ImageController {
         try {
             imageData = Files.readAllBytes(resource.toPath());
         } catch (IOException e) {
-            return new ResponseEntity<>("Image not found!",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Image not found",HttpStatus.NOT_FOUND);
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
@@ -42,7 +42,7 @@ public class ImageController {
 
     @PatchMapping(value="/profile", consumes= {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> setProfilePicture(@AuthenticationPrincipal JwtUserDetails userDetails,
-                                               @RequestBody MultipartFile profilePicture){
+                                               @RequestParam MultipartFile profilePicture){
         try {
             if (profilePicture != null && !profilePicture.isEmpty()) {
                 profileService.setProfilePicture(userDetails.getUserId(),profilePicture);

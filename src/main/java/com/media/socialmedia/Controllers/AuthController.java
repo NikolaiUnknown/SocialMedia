@@ -71,7 +71,7 @@ public class AuthController {
         newRefreshTokenCookie.setHttpOnly(true);
 //        newRefreshTokenCookie.setSecure(true); // Only for HTTPS
         newRefreshTokenCookie.setPath("/");
-        newRefreshTokenCookie.setMaxAge((int)(refreshToken.getExpiryDate().getTime() + new Date().getTime()));
+        newRefreshTokenCookie.setMaxAge(((int)(refreshToken.getExpiryDate().getTime() - new Date().getTime()))/1000);
         response.addCookie(newRefreshTokenCookie);
         return ResponseEntity.ok(jwt);
     }
@@ -95,7 +95,7 @@ public class AuthController {
                     User user = userService.loadUserById(userId);
                     String accessToken = jwtCore.generateToken(userService.loadUserByUsername(user.getEmail()));
                     return ResponseEntity.ok(accessToken);
-                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Request Token not found in db"));
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Refresh Token not found in db"));
     }
 
     @PostMapping("/register")

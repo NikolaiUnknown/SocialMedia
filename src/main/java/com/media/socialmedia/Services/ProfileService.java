@@ -6,6 +6,7 @@ import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Entity.search.UserSearchDocument;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.Repository.search.UserSearchRepository;
+import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.util.Caches;
 import com.media.socialmedia.util.FileException;
 import com.media.socialmedia.util.ProfileStatus;
@@ -13,9 +14,11 @@ import com.media.socialmedia.util.UsernameIsUsedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,5 +118,31 @@ public class ProfileService {
         userService.evictFromCache(Caches.USERS,userId);
         userRepository.save(user);
         userSearchRepository.save(document);
+    }
+
+    public UserDTO getUser(JwtUserDetails userDetails, Long id) {
+        try {
+            UserDTO user = userService.loadUserDtoById(id);
+            if (user.isPrivate()){
+                if (userDetails == null){
+                    return changeCredentials(user);
+                }
+                if (userDetails.getAuthorities().stream().
+                        anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                    return user;
+                }
+                Long authId = userDetails.getUserId();
+                if (authId.equals(id)){
+                    return user;
+                }
+                if (getStatus(authId, user.getId()).equals(ProfileStatus.FRIENDS)){
+                    return user;
+                }
+                return changeCredentials(user);
+            }
+            else return user;
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
     }
 }

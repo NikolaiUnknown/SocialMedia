@@ -44,7 +44,7 @@ public class FriendController {
                                     @RequestParam long id){
         try {
             friendService.inviteToFriend(userDetails.getUserId(),id);
-        } catch (UsernameNotFoundException | InviteNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         } catch (UsernameIsUsedException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);

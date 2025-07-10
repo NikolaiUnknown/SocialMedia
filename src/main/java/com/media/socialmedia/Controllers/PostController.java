@@ -36,7 +36,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> post(@PathVariable("id") Long id){
+    public ResponseEntity<?> getPost(@PathVariable("id") Long id){
         try {
             return ResponseEntity.ok(postService.getPost(id));
         } catch (PostNotFoundException e) {
@@ -45,7 +45,7 @@ public class PostController {
     }
     @PostMapping(value="/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> create(@RequestPart("text") @Valid String text,
-                                    @RequestPart("image")MultipartFile file,
+                                    @RequestPart(name="image", required = false)MultipartFile file,
                                     @AuthenticationPrincipal JwtUserDetails userDetails){
         if (file == null || file.isEmpty()) {
             postService.create(userDetails.getUserId(),text);

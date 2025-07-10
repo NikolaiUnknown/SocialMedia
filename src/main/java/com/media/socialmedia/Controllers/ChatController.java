@@ -6,7 +6,9 @@ import com.media.socialmedia.Entity.Chat;
 import com.media.socialmedia.Security.JwtUserDetails;
 import com.media.socialmedia.Services.ChatService;
 import com.media.socialmedia.util.ChatForbiddenException;
+import com.media.socialmedia.util.ChatNotFoundException;
 import com.media.socialmedia.util.MessageNotFoundException;
+import com.media.socialmedia.util.UsernameIsUsedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,8 @@ public class ChatController {
         try {
             Chat chat = chatService.createChat(userDetails.getUserId(),id);
             return new ResponseEntity<>(chat, HttpStatus.CREATED);
+        } catch (UsernameIsUsedException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
         } catch (UsernameNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
@@ -45,7 +49,7 @@ public class ChatController {
                            @PathVariable("id") UUID chatId){
         try {
             chatService.deleteChat(userDetails.getUserId(),chatId);
-        } catch (MessageNotFoundException e) {
+        } catch (ChatNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (ChatForbiddenException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
@@ -59,8 +63,6 @@ public class ChatController {
                                                ){
         try {
             return ResponseEntity.ok(chatService.getChatHistory(userDetails.getUserId(),chatId, page));
-        } catch (MessageNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (ChatForbiddenException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }

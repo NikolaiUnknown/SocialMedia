@@ -27,42 +27,19 @@ import java.util.List;
 public class ProfileController {
 
     private final ProfileService profileService;
-    private final UserService userService;
-    private final ModelMapper mapper;
 
     @Autowired
-    public ProfileController(ProfileService profileService, UserService userService, ModelMapper mapper) {
+    public ProfileController(ProfileService profileService) {
         this.profileService = profileService;
-        this.userService = userService;
-        this.mapper = mapper;
     }
     @GetMapping("/users/{id}")
     public UserDTO getUser(@PathVariable("id") Long id,
                            @AuthenticationPrincipal JwtUserDetails userDetails){
         try {
-            UserDTO user = userService.loadUserDtoById(id);
-            if (user.isPrivate()){
-                if (userDetails == null){
-                    return profileService.changeCredentials(mapper.map(user, UserDTO.class));
-                }
-                if (userDetails.getAuthorities().stream().
-                        anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                    return user;
-                }
-                Long authId = userDetails.getUserId();
-                if (authId.equals(id)){
-                    return user;
-                }
-                if (profileService.getStatus(authId, user.getId()).equals(ProfileStatus.FRIENDS)){
-                    return user;
-                }
-                return profileService.changeCredentials(user);
-            }
-            else return user;
+            return profileService.getUser(userDetails,id);
         } catch (UsernameNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
-
     }
     @GetMapping("/status")
     public String getStatus(@AuthenticationPrincipal JwtUserDetails userDetails,

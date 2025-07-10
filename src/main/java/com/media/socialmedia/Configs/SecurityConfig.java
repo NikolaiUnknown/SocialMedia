@@ -47,11 +47,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**","/api-docs.yaml").permitAll()
+                        .requestMatchers("/swagger-ui/**","/api-docs.yaml","/__ignore__/swagger-config").permitAll()
                         .requestMatchers("/a/**").permitAll()
                         .requestMatchers("/posts/like/**").fullyAuthenticated()
                         .requestMatchers("/posts/").fullyAuthenticated()
                         .requestMatchers("/p/users/**").permitAll()
+                        .requestMatchers("/images/profile").fullyAuthenticated()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/posts/**").permitAll()
                         .requestMatchers("/search/**").permitAll()

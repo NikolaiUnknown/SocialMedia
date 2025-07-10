@@ -41,6 +41,7 @@ public class FriendService {
             throw new UsernameNotFoundException(e.getMessage());
         }
     }
+
     public Set<UserDTO> getUsersInvitingMe(long id) {
         try {
             return userService.loadInvitesForMe(id);
@@ -54,16 +55,19 @@ public class FriendService {
         try {
             User user = userService.loadUserById(userId);
             User friend = userService.loadUserById(friendId);
-            if (!user.getFriends().contains(friend)
-                    && !user.getFriendsOf().contains(friend)
-                    && !user.getBlacklist().contains(friend)
-                    && !friend.getBlacklist().contains(user)){
+            if (user.getFriends().contains(friend)
+                    || user.getFriendsOf().contains(friend)){
+                throw new UsernameIsUsedException("You are friends now!");
+            } else if (user.getBlacklist().contains(friend) ||
+                    friend.getBlacklist().contains(user)
+            ) {
+                throw new UsernameIsUsedException("User is in blacklist now!");
+            } else {
                 user.getUsersInvitedByMe().add(friend);
                 userService.addToCache(Caches.INVITES,userId,user.getUsersInvitedByMe(),friendId);
                 userService.addToCache(Caches.INVITES_OF,friendId,friend.getUsersInvitingMe(),userId);
                 userRepository.save(user);
             }
-            else throw new InviteNotFoundException("You are friends now!");
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }

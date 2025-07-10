@@ -11,6 +11,7 @@ import com.media.socialmedia.Repository.MessageRepository;
 import com.media.socialmedia.util.ChatForbiddenException;
 import com.media.socialmedia.util.ChatNotFoundException;
 import com.media.socialmedia.util.MessageNotFoundException;
+import com.media.socialmedia.util.UsernameIsUsedException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -41,6 +42,7 @@ public class ChatService {
     }
 
     public Chat createChat(Long user1Id, Long user2Id){
+        if (user1Id.equals(user2Id)) throw new UsernameIsUsedException("This is you!");
         try {
             User user1 = userService.loadUserById(user1Id);
             User user2 = userService.loadUserById(user2Id);
@@ -139,13 +141,14 @@ public class ChatService {
         }
         return userService.loadUserDtoById(chatRepository.findOtherMember(userId,id));
     }
+
     @Transactional
     public void deleteChat(Long userId, UUID chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found!"));
         if (!isUserMember(userId,chatId)){
             throw new ChatForbiddenException("Access denied!");
         }
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new ChatNotFoundException("Chat not found!"));
         chat.getMembers().clear();
         chatRepository.save(chat);
         messageRepository.deleteMessagesByChatId(chatId);

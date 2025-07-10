@@ -40,5 +40,4 @@ public class RegService {
         return mapper.map(user,User.class);
     }
 
-
 }

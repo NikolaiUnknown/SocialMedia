@@ -59,8 +59,7 @@ public class PostService {
         try {
             file.transferTo(new File(pictureDirectory + filename));
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при сохранении файла", e);
-
+            throw new RuntimeException(e);
         }
         Post post = new Post();
         post.setText(text);

@@ -1047,6 +1047,8 @@ paths:
               schema:
                 type: boolean
                 example: true
+        '403':
+          description: FORBIDDEN
         '401':
           description: UNAUTHORIZED
       security:

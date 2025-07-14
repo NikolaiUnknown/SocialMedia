@@ -1,0 +1,68 @@
+services:
+  spring:
+    build:
+      context: ./
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATA_REDIS_HOST: cache
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_ELASTICSEARCH_URL: search:9200
+      SPRING_DATA_ELASTICSEARCH_USERNAME: elastic
+      SPRING_DATA_ELASTICSEARCH_PASSWORD: ${ES_PASSWORD}
+    depends_on:
+      search:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    volumes:
+      - pictures:/app/pictures
+
+  database:
+    image: postgres:17.0
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init/postgres/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+  cache:
+    image: redis:7.2.5
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+  search:
+    image: elasticsearch:7.17.28
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: true
+      ELASTIC_PASSWORD: ${ES_PASSWORD}
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "curl --fail -u elastic:${ES_PASSWORD} http://localhost:9200/_cluster/health?wait_for_status=yellow || exit 1"
+      ]
+      interval: 20s
+      timeout: 10s
+      start_period: 2m
+volumes:
+  db_data:
+  es_data:
+  pictures:

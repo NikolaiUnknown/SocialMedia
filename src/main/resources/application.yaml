@@ -2,35 +2,20 @@ spring:
   application:
     name: SocialMedia
 #DATA
-  #Postgres
-  datasource:
-    url: jdbc:postgresql://localhost:5432/SocialMedia
-    username: postgres
-    password: postgres
-  #FILE
+  #FILES
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
-  jpa:
-    show-sql: true
   #Redis
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
       dataLifetime: 600000 #Cache data lifetime
       setsLifetime: 300000 #Cache sets lifetime
-    elasticsearch:
-      url: 127.0.0.1:9200
-      username: elastic
-      password: elastic
 #SERVER
 server:
   port: 8081
-  servlet:
-    context-path: /api
   error:
     include-message: always
 #SPECIFICATION
@@ -43,7 +28,7 @@ springdoc:
 #VARIABLES
 socialmedia:
   pictures:
-    dir: /home/nikolai/Documents/pictures/ #Directory of saved pictures
+    dir: /app/pictures/ #Directory of saved pictures
   security:
     secret: FA0YBcVmpr9CdM3SqfIdqftRjPeuLlL6W/7IcPMvVMc #256-bit secret
     accessLifetime: 900000 #JWT lifetime

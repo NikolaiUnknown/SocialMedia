@@ -1,0 +1,6 @@
+HELP.md
+build/
+.idea
+.gradle
+.gitattributes
+.gitignore

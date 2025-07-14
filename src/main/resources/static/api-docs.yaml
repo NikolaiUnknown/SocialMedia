@@ -3,9 +3,6 @@ info:
   title: SocialMedia OpenApi Definition
   description: Open Api for SocialMedia project
   version: '1'
-servers:
-  - url: http://127.0.0.1:8081/api
-    description: Generated server url
 tags:
   - name: Authentication
   - name: Profile Settings

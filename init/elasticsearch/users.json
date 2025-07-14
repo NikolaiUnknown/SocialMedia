@@ -1,0 +1,39 @@
+{
+    "mappings": {
+        "properties" : {
+            "id": {
+                "type": "long"
+            },
+            "email":{
+                "type": "text",
+                "fields": {
+                    "keyword":{
+                        "type": "keyword"
+                    }
+                }
+            },
+            "full_name": {
+                "type": "text",
+                "fields": {
+                    "ru": { "type": "text", "analyzer": "russian" },
+                    "en": { "type": "text", "analyzer": "english" },
+                    "raw": { "type": "keyword" }
+                }
+            },
+            "profile_picture":{
+                "type": "text"
+            },
+            "is_private": {
+                "type": "boolean"
+            },
+            "country":{
+                "type": "text",
+                "fields": {
+                    "keyword":{
+                        "type": "keyword"
+                    }
+                }
+            }
+        }
+    }
+}

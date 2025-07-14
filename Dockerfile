@@ -4,8 +4,7 @@ COPY ./build.gradle ./
 COPY ./settings.gradle ./
 RUN gradle build --dry-run || return 0
 COPY . .
-RUN mkdir /app/pictures
-COPY ./src/main/resources/static/default-avatar.png /app/pictures
+COPY ./src/main/resources/static/default-avatar.png /app/pictures/default-avatar.png
 RUN gradle build
 
 FROM openjdk:23-jdk AS final

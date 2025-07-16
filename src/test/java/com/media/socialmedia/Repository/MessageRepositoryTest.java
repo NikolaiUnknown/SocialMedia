@@ -3,20 +3,16 @@ package com.media.socialmedia.Repository;
 import com.media.socialmedia.Entity.Chat;
 import com.media.socialmedia.Entity.Message;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Repeat;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataJpaTest
 class MessageRepositoryTest {
 

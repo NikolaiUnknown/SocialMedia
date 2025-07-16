@@ -6,10 +6,10 @@ import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.Caches;
 import com.media.socialmedia.util.InviteNotFoundException;
 import com.media.socialmedia.util.UsernameIsUsedException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.Set;
 

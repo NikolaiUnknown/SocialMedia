@@ -2,10 +2,9 @@ package com.media.socialmedia.Security;
 
 import com.media.socialmedia.Entity.User;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+
 import java.util.Collection;
 import java.util.List;
 @Getter

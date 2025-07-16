@@ -5,12 +5,12 @@ import com.media.socialmedia.DTO.RegisterRequestDTO;
 import com.media.socialmedia.Entity.RefreshToken;
 import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Security.AuthDetailsImpl;
+import com.media.socialmedia.Security.JwtCore;
 import com.media.socialmedia.Services.RefreshTokenService;
 import com.media.socialmedia.Services.RegService;
 import com.media.socialmedia.Services.UserService;
 import com.media.socialmedia.util.RefreshTokenExpireException;
 import com.media.socialmedia.util.UserErrorResponse;
-import com.media.socialmedia.Security.JwtCore;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Date;
 import java.util.List;
 

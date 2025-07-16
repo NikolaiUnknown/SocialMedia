@@ -5,9 +5,10 @@ import com.media.socialmedia.Entity.User;
 import com.media.socialmedia.Repository.UserRepository;
 import com.media.socialmedia.util.UsernameIsUsedException;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import java.util.Date;
 
 @Service

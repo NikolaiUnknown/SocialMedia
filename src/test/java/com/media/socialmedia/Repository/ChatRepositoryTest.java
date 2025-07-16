@@ -2,7 +2,6 @@ package com.media.socialmedia.Repository;
 
 import com.media.socialmedia.Entity.Chat;
 import com.media.socialmedia.Entity.User;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

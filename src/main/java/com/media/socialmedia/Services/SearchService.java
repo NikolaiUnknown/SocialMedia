@@ -2,17 +2,12 @@ package com.media.socialmedia.Services;
 
 import com.media.socialmedia.Entity.search.UserSearchDocument;
 import com.media.socialmedia.Repository.search.UserSearchRepository;
-import com.media.socialmedia.Security.JwtUserDetails;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class SearchService {
